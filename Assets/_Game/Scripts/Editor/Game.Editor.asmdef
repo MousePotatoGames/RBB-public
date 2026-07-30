@@ -4,7 +4,9 @@
     "references": [
         "Game.Core",
         "Game.Gameplay",
-        "Game.Presentation"
+        "Game.Presentation",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"

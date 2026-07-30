@@ -82,6 +82,34 @@
 
 ---
 
+## 카메라 (CAM) — 기획서 11.1 전사
+
+## CAM-001 마우스 궤도 회전
+
+- Status: CONFIRMED
+- Condition: 플레이 중 마우스 이동
+- Process: 카메라가 플레이어를 중심으로 yaw 궤도 회전한다. 시점은 가까운 3인칭 쿼터뷰(고정 피치)
+- Result: 진행 방향 결정과 전장 탐색. 이동 기준축(MOVE-001)이 즉시 갱신된다
+- Exception: 없음
+
+## CAM-002 프레이밍
+
+- Status: CONFIRMED (구조) / 수치 TEMPORARY
+- Condition: 일반 플레이 상태
+- Process: 플레이어를 화면 세로 기준 하단 40~45%에 두고, 부착 무기가 읽힐 만큼 가까운 거리를 유지한다
+- Result: 전방 시야 확보 + 무기 부착 상태 가독성
+- Exception: 속도·적 수에 따른 거리 증가는 F04 이후 (속도 단계 연동), 대시 FOV는 F03
+
+## CAM-003 물리 보간 분리
+
+- Status: CONFIRMED
+- Condition: 항상
+- Process: 카메라 갱신과 물리 업데이트의 보간을 분리한다 (Rigidbody Interpolate + LateUpdate 계열 카메라 갱신)
+- Result: 고속 이동 중 카메라 떨림 없음
+- Exception: 없음
+
+---
+
 ## 충돌 피해 (DMG)
 
 ## DMG-001 충돌 피해 공식

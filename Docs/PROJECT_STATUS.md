@@ -12,13 +12,18 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 
 | Feature | Spec | Implementation | Verification | Playtest |
 |---|---|---|---|---|
-| F01 그레이박스 아레나 + 이동 | – | – | – | – |
+| F01 그레이박스 아레나 + 이동 | Approved | Done | Verified (automated) | Manual 대기 |
 
 전체 순서는 [Docs/Design/DEVELOPMENT_ORDER.md](Design/DEVELOPMENT_ORDER.md) (F01~F13 = First Playable).
 
+## What is playable right now (갱신)
+
+`FirstPlayable.unity` — WASD로 코어볼 이동, 램프 주행 가능 (정적 쿼터뷰 카메라). PlayMode 검증 전.
+
 ## Next up
 
-- `/first-playable:feature F01-ball-movement` — 코어볼 이동 (MOVE-001, MOVE-004, MOVE-005)
+- 사용자 수동 플레이 → Manual play checks 판단 (조작감, HYP-001) → 필요 시 `/first-playable:playtest`
+- `/first-playable:feature F02-camera` — 3인칭 쿼터뷰 카메라 (Cinemachine 3.1.7)
 
 ## Known issues
 
