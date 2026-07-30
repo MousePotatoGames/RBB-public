@@ -13,6 +13,7 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 | Feature | Spec | Implementation | Verification | Playtest |
 |---|---|---|---|---|
 | F01 그레이박스 아레나 + 이동 | Approved | Done | Verified (automated) | Manual 대기 |
+| F02 3인칭 쿼터뷰 카메라 | Approved | Done | Verified (automated) | Manual 대기 |
 
 전체 순서는 [Docs/Design/DEVELOPMENT_ORDER.md](Design/DEVELOPMENT_ORDER.md) (F01~F13 = First Playable).
 
@@ -22,8 +23,8 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 
 ## Next up
 
-- 사용자 수동 플레이 → Manual play checks 판단 (조작감, HYP-001) → 필요 시 `/first-playable:playtest`
-- `/first-playable:feature F02-camera` — 3인칭 쿼터뷰 카메라 (Cinemachine 3.1.7)
+- 사용자 수동 플레이 → F01(조작감)·F02(카메라 감도·떨림) Manual checks 한 번에 판단 → `/first-playable:playtest`
+- `/first-playable:feature F03-jump-dash` — 점프·대시 (JUMP-001, DASH-001, MOVE-002/003)
 
 ## Known issues
 

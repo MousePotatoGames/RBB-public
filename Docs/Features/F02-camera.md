@@ -2,7 +2,9 @@
 
 ## Status
 
-Draft
+Verified (automated) — EditMode 10/10 회귀, PlayMode 9/9, 런타임 검증 통과 ([검증 보고서](../Reports/2026-07-30_F02-camera_VERIFICATION.md)). Manual play checks는 사용자 판단 대기. (스펙 승인: 2026-07-30)
+
+> 구현 중 확정된 사실: CM3 RotationComposer의 ScreenPosition은 +y가 화면 아래 방향. 초기 -0.08은 플레이어를 상단(0.58)에 놓아 +0.08로 수정, 실측 0.42 확인 (스크린샷: [Docs/Media/2026-07-30_F02_quarterview_framing.png](../Media/2026-07-30_F02_quarterview_framing.png))
 
 ## Purpose
 
@@ -69,7 +71,7 @@ Game.Presentation
 |---|---:|---|
 | 궤도 반경 (거리) | 11 m | TEMPORARY |
 | 고정 피치 | 38° | TEMPORARY |
-| 프레이밍 화면 Y (Composer) | 0.58 (플레이어가 하단 ~42%) | TEMPORARY |
+| 프레이밍 화면 Y (Composer ScreenPosition.y) | +0.08 → 실측 viewport y 0.42 (CM3는 +y가 화면 아래) | TEMPORARY |
 | Look 감도 (InputAxisController gain) | 기본값에서 시작 | TEMPORARY |
 | 추적 댐핑 | 위치 0.5 / 회전 0.3 | TEMPORARY |
 | Brain 업데이트 | LateUpdate | CONFIRMED (CAM-003) |
