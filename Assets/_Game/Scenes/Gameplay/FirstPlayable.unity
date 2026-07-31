@@ -599,6 +599,8 @@ GameObject:
   - component: {fileID: 718158917}
   - component: {fileID: 718158916}
   - component: {fileID: 718158919}
+  - component: {fileID: 718158921}
+  - component: {fileID: 718158920}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -912,6 +914,36 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
   logToConsole: 1
   debugCurrentHealth: 0
+--- !u!114 &718158920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718158908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7184c1ec3fec6af4cb378e2964b911fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Presentation::Game.Presentation.HitStopController
+  dealer: {fileID: 718158921}
+  config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
+--- !u!114 &718158921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718158908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06f1b2e8b4bc37d47ab825a30ad37247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.PlayerDamageDealer
+  config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
+  movementConfig: {fileID: 11400000, guid: 37da3c0985c619c4ea96924bd1a3c932, type: 2}
+  motor: {fileID: 718158914}
+  logToConsole: 1
 --- !u!1 &948252611
 GameObject:
   m_ObjectHideFlags: 0

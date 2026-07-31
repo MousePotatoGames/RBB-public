@@ -28,3 +28,20 @@ MonoBehaviour:
   despawnDistance: 45
   playerMaxHealth: 100
   invulnerabilityDuration: 0.45
+  droneMaxHealth: 10
+  baseCollisionDamage: 10
+  minSpeedMultiplier: 0.25
+  maxSpeedMultiplier: 1.5
+  minFrontality: 0.3
+  dashDamageMultiplier: 1.6
+  fallDamageMultiplier: 1.5
+  fallSpeedThreshold: 6
+  hitCooldown: 0.25
+  knockbackForce: 9
+  knockbackResistance: 0
+  knockbackRecovery: 0.35
+  corpseTime: 1
+  hitStopDamageThreshold: 5
+  hitStopReferenceDamage: 15
+  hitStopMinDuration: 0.05
+  hitStopMaxDuration: 0.09

@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 7280934675216844542}
   - component: {fileID: 5219189467378436425}
   - component: {fileID: 4010416545512871077}
+  - component: {fileID: 1368469986203155735}
   m_Layer: 0
   m_Name: Drone
   m_TagString: Untagged
@@ -153,4 +154,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2fea02c0982c8446adc0c0d96998375, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.ScrapDrone
+  config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
+--- !u!114 &1368469986203155735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7974511713096396728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1948e02e71e18cf4c90f180b3eb12ee4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.EnemyHealth
   config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}

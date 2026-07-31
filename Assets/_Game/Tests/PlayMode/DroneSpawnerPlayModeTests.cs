@@ -129,7 +129,7 @@ namespace Game.Tests.PlayMode
             BuildRig();
             yield return WaitPhysics(1f);
 
-            var drones = Object.FindObjectsByType<ScrapDrone>(FindObjectsSortMode.None);
+            var drones = Object.FindObjectsByType<ScrapDrone>(FindObjectsInactive.Exclude);
             int checkedCount = 0;
             foreach (ScrapDrone drone in drones)
             {

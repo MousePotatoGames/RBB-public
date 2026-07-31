@@ -160,6 +160,22 @@ namespace Game.Gameplay
             }
         }
 
+        /// <summary>B11: returns a drone to the pool (corpse expiry or cleanup).</summary>
+        public void Despawn(ScrapDrone drone)
+        {
+            if (drone == null || _pool == null)
+            {
+                return;
+            }
+
+            if (!_active.Remove(drone))
+            {
+                return; // already released — never double-release into the pool
+            }
+
+            _pool.Release(drone);
+        }
+
         // B10: drones that drift too far come back to the pool.
         private void RecycleDistant()
         {
