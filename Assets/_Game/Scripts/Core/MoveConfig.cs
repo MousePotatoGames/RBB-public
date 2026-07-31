@@ -3,6 +3,7 @@ namespace Game.Core
     /// <summary>
     /// Pure data for ball movement. Values come from the BallMovementConfig
     /// ScriptableObject in Game.Gameplay (MOVE-005, all TEMPORARY).
+    /// F03 fields default to "no effect" so F01 call sites stay valid.
     /// </summary>
     public readonly struct MoveConfig
     {
@@ -15,11 +16,24 @@ namespace Game.Core
         /// <summary>Slope assist coefficient, 0 = off (MOVE-004).</summary>
         public readonly float SlopeAssist;
 
-        public MoveConfig(float maxSpeed, float acceleration, float slopeAssist)
+        /// <summary>Airborne acceleration multiplier, 1 = same as ground (MOVE-002).</summary>
+        public readonly float AirControl;
+
+        /// <summary>Turn-component multiplier at max speed, 1 = no damping (MOVE-003).</summary>
+        public readonly float SteeringAtMaxSpeed;
+
+        public MoveConfig(
+            float maxSpeed,
+            float acceleration,
+            float slopeAssist,
+            float airControl = 1f,
+            float steeringAtMaxSpeed = 1f)
         {
             MaxSpeed = maxSpeed;
             Acceleration = acceleration;
             SlopeAssist = slopeAssist;
+            AirControl = airControl;
+            SteeringAtMaxSpeed = steeringAtMaxSpeed;
         }
     }
 }

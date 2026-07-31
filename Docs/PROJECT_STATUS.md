@@ -14,6 +14,7 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 |---|---|---|---|---|
 | F01 그레이박스 아레나 + 이동 | Approved | Done | Verified (automated) | Manual 대기 |
 | F02 3인칭 쿼터뷰 카메라 | Approved | Done | Verified (automated) | Manual 대기 |
+| F03 점프·대시·조향 감쇠 | Approved | Done | Verified (automated) | Manual 대기 |
 
 전체 순서는 [Docs/Design/DEVELOPMENT_ORDER.md](Design/DEVELOPMENT_ORDER.md) (F01~F13 = First Playable).
 
@@ -28,7 +29,7 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 
 ## Known issues
 
-- 없음 (부트스트랩 직후)
+- **런타임 검증 시 주의**: Unity 에디터가 백그라운드면 플레이 모드 프레임이 진행되지 않아 측정값이 정지 상태 값이 된다. 검증 중에는 `Application.runInBackground = true`를 켜거나 에디터를 포그라운드로 둘 것. Player Settings의 Run In Background 활성화를 권장 (미결정)
 
 ## Environment
 

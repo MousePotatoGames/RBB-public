@@ -27,7 +27,7 @@
 - `VERIFIED` — 리그 배선: Follow=Player, 피치 고정(range 38~38), 수평축만 Look 액션 연결, Brain LateUpdate, CursorLockController 부착 (`F02CameraSetup.Verify()` = PASS)
 - `VERIFIED` — 카메라-플레이어 거리 = 11.0 (궤도 반경과 일치), Brain이 Main Camera를 구동 (BallMotor의 기준축도 동일 카메라)
 - `VERIFIED` — 플레이어 뷰포트 y = **0.42** (CAM-002 목표 40~45% 적중)
-- `VERIFIED` — 공이 스폰에서 벽 부근까지 이동한 뒤에도 카메라 거리 11 유지 (추적 동작, PlayMode 테스트로도 이중 확인)
+- ~~`VERIFIED` — 공이 스폰에서 벽 부근까지 이동한 뒤에도 카메라 거리 11 유지~~ → **`UNVERIFIED` (2026-08-01 정정)**: 당시 측정 속도가 0.01 m/s로 사실상 정지 상태였고, 에디터가 백그라운드라 플레이 모드 프레임이 진행되지 않았을 가능성이 높다. 카메라 추적은 PlayMode 테스트 `Cam002_Camera_FollowsMovingPlayer`로 통과하므로 기능 판정은 유지. 자세한 경위는 [F03 검증 보고서](2026-08-01_F03-jump-dash_VERIFICATION.md#검증-인프라-문제-발견-f02-보고서-정정-포함) 참조
 - `VERIFIED` — 플레이 세션 전체 콘솔 에러 0건
 - `INFERRED` — 고속 이동 중 떨림 없음(CAM-003): Rigidbody Interpolate + Brain LateUpdate 구성으로 조건은 충족하나, 떨림 자체는 자동 판정이 취약 → Manual로 이관
 

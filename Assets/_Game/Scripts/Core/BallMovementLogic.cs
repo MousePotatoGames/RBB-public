@@ -33,11 +33,13 @@ namespace Game.Core
         /// <summary>
         /// MOVE-001 / MOVE-005 (B3, B4, B5): velocity change for one physics step.
         /// - No input → Zero (no artificial braking; inertia is preserved).
-        /// - Acceleration is finite (config.Acceleration).
+        /// - Acceleration is finite (config.Acceleration), reduced in the air
+        ///   by config.AirControl (MOVE-002).
         /// - Never pushes the on-plane speed beyond MaxSpeed, but never brakes
         ///   a body that is already faster (dash/knockback stay untouched).
+        /// - The turn component is damped near max speed (MOVE-003).
         /// </summary>
-        public static Float3 ComputeVelocityChange(Float3 velocity, Float3 moveDirection, Float3 groundNormal, in MoveConfig config, float deltaTime)
+        public static Float3 ComputeVelocityChange(Float3 velocity, Float3 moveDirection, Float3 groundNormal, in MoveConfig config, float deltaTime, bool isGrounded = true)
         {
             float inputMagnitude = moveDirection.Magnitude();
             if (inputMagnitude < InputEpsilon)
@@ -54,7 +56,8 @@ namespace Game.Core
             Float3 velocityOnPlane = velocity.OnPlane(unitNormal);
             Float3 directionNorm = moveDirection / inputMagnitude;
 
-            float step = config.Acceleration * deltaTime * inputMagnitude;
+            float control = isGrounded ? 1f : config.AirControl;
+            float step = config.Acceleration * deltaTime * inputMagnitude * control;
             Float3 candidate = velocityOnPlane + directionNorm * step;
 
             float candidateSpeed = candidate.Magnitude();
@@ -64,7 +67,43 @@ namespace Game.Core
                 candidate = candidate * (allowedSpeed / candidateSpeed);
             }
 
-            return candidate - velocityOnPlane;
+            Float3 velocityChange = candidate - velocityOnPlane;
+            return ApplySteeringDamping(velocityChange, velocityOnPlane, config.MaxSpeed, config.SteeringAtMaxSpeed);
+        }
+
+        /// <summary>
+        /// MOVE-003 (B9, B10): scales down only the part of the velocity change
+        /// that turns the ball, proportionally to how close it is to max speed.
+        /// The component along the current heading is left untouched so
+        /// acceleration never suffers.
+        /// </summary>
+        public static Float3 ApplySteeringDamping(Float3 velocityChange, Float3 velocity, float maxSpeed, float steeringAtMaxSpeed)
+        {
+            if (steeringAtMaxSpeed >= 1f || maxSpeed <= 1e-6f)
+            {
+                return velocityChange;
+            }
+
+            float speed = velocity.Magnitude();
+            if (speed < 1e-4f)
+            {
+                return velocityChange; // heading undefined at rest — nothing to damp
+            }
+
+            float ratio = speed / maxSpeed;
+            if (ratio > 1f)
+            {
+                ratio = 1f;
+            }
+
+            float factor = 1f + (steeringAtMaxSpeed - 1f) * ratio;
+
+            Float3 heading = velocity.Normalized();
+            float alongMagnitude = Float3.Dot(velocityChange, heading);
+            Float3 along = heading * alongMagnitude;
+            Float3 turn = velocityChange - along;
+
+            return along + turn * factor;
         }
 
         /// <summary>

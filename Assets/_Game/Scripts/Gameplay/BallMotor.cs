@@ -4,10 +4,10 @@ using UnityEngine;
 namespace Game.Gameplay
 {
     /// <summary>
-    /// Humble adapter for BallMovementLogic (F01). Captures Rigidbody state,
-    /// runs the engine-free rules and applies the results as forces.
-    /// Input arrives via SetMoveInput so tests and PlayerInputReader both
-    /// drive the motor the same way.
+    /// Humble adapter for the engine-free movement rules (F01) plus jump and
+    /// dash (F03). Captures Rigidbody state, runs the Core logic and applies
+    /// the results as forces. Input arrives via SetMoveInput / QueueJump /
+    /// QueueDash so tests and PlayerInputReader drive the motor the same way.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(SphereCollider))]
@@ -21,6 +21,11 @@ namespace Game.Gameplay
         private Vector2 _moveInput;
         private bool _grounded;
         private Vector3 _groundNormal = Vector3.up;
+
+        private JumpState _jumpState = JumpState.Initial;
+        private DashState _dashState = DashState.Initial;
+        private bool _jumpQueued;
+        private bool _dashQueued;
 
         public BallMovementConfig Config
         {
@@ -37,7 +42,16 @@ namespace Game.Gameplay
         public bool IsGrounded => _grounded;
         public Vector3 GroundNormal => _groundNormal;
 
+        /// <summary>Remaining dash cooldown in seconds (0 = ready). For HUD and tests.</summary>
+        public float DashCooldownRemaining => _dashState.CooldownRemaining;
+
         public void SetMoveInput(Vector2 input) => _moveInput = input;
+
+        /// <summary>Queues a jump press; consumed by the next FixedUpdate (JUMP-001).</summary>
+        public void QueueJump() => _jumpQueued = true;
+
+        /// <summary>Queues a dash press; consumed by the next FixedUpdate (DASH-001).</summary>
+        public void QueueDash() => _dashQueued = true;
 
         private void Awake()
         {
@@ -56,6 +70,7 @@ namespace Game.Gameplay
                 return;
             }
 
+            float dt = Time.fixedDeltaTime;
             UpdateGroundState();
 
             MoveConfig cfg = config.ToMoveConfig();
@@ -66,13 +81,14 @@ namespace Game.Gameplay
                 _moveInput.y);
 
             Float3 normal = _grounded ? ToFloat3(_groundNormal) : Float3.Up;
+            Float3 planarDirection = direction;
             if (_grounded)
             {
                 direction = BallMovementLogic.ProjectOnSlope(direction, normal);
             }
 
             Float3 velocityChange = BallMovementLogic.ComputeVelocityChange(
-                ToFloat3(_body.linearVelocity), direction, normal, cfg, Time.fixedDeltaTime);
+                ToFloat3(_body.linearVelocity), direction, normal, cfg, dt, _grounded);
             _body.AddForce(ToVector3(velocityChange), ForceMode.VelocityChange);
 
             // MOVE-004: counter the along-slope gravity drain while driving on a slope.
@@ -81,6 +97,49 @@ namespace Game.Gameplay
                 Float3 assist = BallMovementLogic.SlopeAssistForce(ToFloat3(Physics.gravity), normal, cfg.SlopeAssist);
                 _body.AddForce(ToVector3(assist), ForceMode.Acceleration);
             }
+
+            ApplyJump(dt);
+            ApplyDash(planarDirection, dt);
+        }
+
+        // JUMP-001
+        private void ApplyJump(float deltaTime)
+        {
+            _jumpState = JumpLogic.Step(_jumpState, _grounded, _jumpQueued, deltaTime);
+            _jumpQueued = false;
+
+            if (!JumpLogic.ShouldJump(_jumpState, config.ToJumpConfig()))
+            {
+                return;
+            }
+
+            Vector3 velocity = _body.linearVelocity;
+            velocity.y = config.JumpSpeed;
+            _body.linearVelocity = velocity;
+            _jumpState = JumpLogic.ConsumeJump(_jumpState);
+        }
+
+        // DASH-001
+        private void ApplyDash(Float3 planarDirection, float deltaTime)
+        {
+            _dashState = DashLogic.Step(_dashState, deltaTime);
+
+            bool requested = _dashQueued;
+            _dashQueued = false;
+            if (!requested || !DashLogic.IsReady(_dashState))
+            {
+                return;
+            }
+
+            DashConfig dashConfig = config.ToDashConfig();
+            Float3 change = DashLogic.DashVelocityChange(ToFloat3(_body.linearVelocity), planarDirection, dashConfig);
+            if (change.Magnitude() < 1e-4f)
+            {
+                return; // no direction to dash in — keep the dash available
+            }
+
+            _body.AddForce(ToVector3(change), ForceMode.VelocityChange);
+            _dashState = DashLogic.StartCooldown(_dashState, dashConfig);
         }
 
         private void UpdateGroundState()
