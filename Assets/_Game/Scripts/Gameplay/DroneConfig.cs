@@ -80,11 +80,14 @@ namespace Game.Gameplay
         [Tooltip("Seconds a corpse stays before returning to the pool (ENM-004)")]
         [Min(0f)] public float corpseTime = 1f;
 
-        [Header("F06 — hit stop (TEMPORARY, 기획서 11.2)")]
+        [Header("F06 — hit stop (TEMPORARY, DMG-005 / 기획서 11.2)")]
         [Min(0f)] public float hitStopDamageThreshold = 5f;
         [Min(0.1f)] public float hitStopReferenceDamage = 15f;
         [Min(0f)] public float hitStopMinDuration = 0.05f;
         [Min(0f)] public float hitStopMaxDuration = 0.09f;
+
+        [Tooltip("DMG-005: 직전 정지로부터 이 시간이 지나기 전에는 다시 정지하지 않는다 (연쇄 = 버벅임)")]
+        [Min(0f)] public float hitStopRefractory = 0.5f;
 
         public DamageConfig ToDamageConfig() => new DamageConfig(
             baseCollisionDamage,
@@ -96,7 +99,7 @@ namespace Game.Gameplay
             fallSpeedThreshold);
 
         public HitStopConfig ToHitStopConfig() =>
-            new HitStopConfig(hitStopDamageThreshold, hitStopReferenceDamage, hitStopMinDuration, hitStopMaxDuration);
+            new HitStopConfig(hitStopDamageThreshold, hitStopReferenceDamage, hitStopMinDuration, hitStopMaxDuration, hitStopRefractory);
 
         public SpawnBudgetConfig ToSpawnBudgetConfig() =>
             new SpawnBudgetConfig(startCount, endCount, rampSeconds, hardCap, spawnInterval);

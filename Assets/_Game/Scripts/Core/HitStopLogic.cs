@@ -12,12 +12,20 @@ namespace Game.Core
         public readonly float MinDuration;
         public readonly float MaxDuration;
 
-        public HitStopConfig(float damageThreshold, float referenceDamage, float minDuration, float maxDuration)
+        /// <summary>
+        /// Minimum real time between the start of one freeze and the next
+        /// (DMG-005). Without it, sequential hits in a swarm chain into what
+        /// reads as stutter even though no single freeze is long.
+        /// </summary>
+        public readonly float Refractory;
+
+        public HitStopConfig(float damageThreshold, float referenceDamage, float minDuration, float maxDuration, float refractory = 0f)
         {
             DamageThreshold = damageThreshold;
             ReferenceDamage = referenceDamage;
             MinDuration = minDuration;
             MaxDuration = maxDuration;
+            Refractory = refractory;
         }
     }
 
@@ -55,6 +63,30 @@ namespace Game.Core
         public static float Merge(float remaining, float incoming)
         {
             return incoming > remaining ? incoming : remaining;
+        }
+
+        /// <summary>Sentinel for "no freeze has happened yet".</summary>
+        public const float NeverFroze = float.NegativeInfinity;
+
+        /// <summary>
+        /// DMG-005: true when enough real time has passed since the last freeze
+        /// started. Merging only prevents *simultaneous* hits from stacking;
+        /// sequential hits in a swarm still chain, and the chain is what reads
+        /// as stutter.
+        /// </summary>
+        public static bool CanFreeze(float lastFreezeTime, float now, float refractory)
+        {
+            if (refractory <= 0f)
+            {
+                return true;
+            }
+
+            if (float.IsNegativeInfinity(lastFreezeTime))
+            {
+                return true;
+            }
+
+            return now - lastFreezeTime >= refractory;
         }
     }
 }

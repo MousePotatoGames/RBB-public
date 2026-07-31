@@ -200,5 +200,36 @@ namespace Game.Tests.EditMode
             Assert.That(mergedSmaller, Is.EqualTo(0.09f).Within(1e-6f),
                 "simultaneous kills must not add up into a long freeze");
         }
+
+        // DMG-005 / B20 — refractory period
+        [Test]
+        public void Dmg005_FirstFreeze_IsAlwaysAllowed()
+        {
+            Assert.IsTrue(HitStopLogic.CanFreeze(HitStopLogic.NeverFroze, 0f, 0.5f),
+                "DMG-005: the very first hit must never be gated");
+        }
+
+        // DMG-005 / B20
+        [Test]
+        public void Dmg005_WithinRefractory_CannotFreezeAgain()
+        {
+            Assert.IsFalse(HitStopLogic.CanFreeze(lastFreezeTime: 10f, now: 10.2f, refractory: 0.5f),
+                "DMG-005: sequential swarm hits must not chain into stutter");
+        }
+
+        // DMG-005 / B20
+        [Test]
+        public void Dmg005_AfterRefractory_CanFreezeAgain()
+        {
+            Assert.IsTrue(HitStopLogic.CanFreeze(lastFreezeTime: 10f, now: 10.5f, refractory: 0.5f),
+                "DMG-005: the gate must open again once the interval has passed");
+        }
+
+        // DMG-005 / B20 — a zero interval keeps the old behaviour for callers that opt out
+        [Test]
+        public void Dmg005_ZeroRefractory_NeverGates()
+        {
+            Assert.IsTrue(HitStopLogic.CanFreeze(lastFreezeTime: 10f, now: 10.0001f, refractory: 0f));
+        }
     }
 }

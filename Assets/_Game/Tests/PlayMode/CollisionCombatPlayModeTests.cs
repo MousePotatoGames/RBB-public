@@ -46,6 +46,7 @@ namespace Game.Tests.PlayMode
             _config.hitStopReferenceDamage = 15f;
             _config.hitStopMinDuration = 0.05f;
             _config.hitStopMaxDuration = 0.09f;
+            _config.hitStopRefractory = 0f;   // gate tested separately; here we want every qualifying hit
             _config.knockbackForce = 9f;
             _config.knockbackRecovery = 0.35f;
             _config.corpseTime = 0.4f;
@@ -300,6 +301,32 @@ namespace Game.Tests.PlayMode
 
             Assert.IsFalse(stop.IsFrozen, "hit stop must end");
             Assert.That(Time.timeScale, Is.EqualTo(1f).Within(1e-3f), "B17: time scale must be restored");
+        }
+
+        // DMG-005 / B20 — the refractory gate holds in a real scene
+        [UnityTest]
+        public IEnumerator Dmg005_RepeatedHits_DoNotChainFreezes()
+        {
+            BuildRig();
+            _config.droneMaxHealth = 1000f;   // survive so hits keep landing
+            _config.hitCooldown = 0.05f;      // hit the same drone often
+            _config.hitStopRefractory = 5f;   // far longer than the test window
+
+            var stop = _player.AddComponent<HitStopController>();
+            stop.Dealer = _dealer;
+            stop.Config = _config;
+            stop.enabled = false;
+            stop.enabled = true;
+
+            var drone = SpawnDrone(new Vector3(0f, 0.5f, 1.2f));
+            yield return WaitPhysics(0.1f);
+
+            _playerBody.linearVelocity = new Vector3(0f, 0f, 12f);
+            yield return WaitPhysics(1f);
+
+            Assert.Greater(_dealer.HitCount, 1, "sanity: several hits must have landed");
+            Assert.AreEqual(1, stop.FreezeCount,
+                "DMG-005: repeated hits inside the refractory window must produce exactly one freeze");
         }
 
         // B18 — disable restores time scale

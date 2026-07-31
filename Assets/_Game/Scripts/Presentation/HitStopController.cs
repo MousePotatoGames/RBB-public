@@ -18,6 +18,7 @@ namespace Game.Presentation
         private float _remaining;
         private bool _frozen;
         private float _restoreScale = 1f;
+        private float _lastFreezeTime = HitStopLogic.NeverFroze;
 
         public bool IsFrozen => _frozen;
         public float Remaining => _remaining;
@@ -66,20 +67,33 @@ namespace Game.Presentation
                 return;
             }
 
-            float duration = HitStopLogic.DurationFor(damage, config.ToHitStopConfig());
+            HitStopConfig hitStop = config.ToHitStopConfig();
+
+            float duration = HitStopLogic.DurationFor(damage, hitStop);
             if (duration <= 0f)
             {
                 return; // B15
             }
 
-            _remaining = HitStopLogic.Merge(_remaining, duration); // B16
-            if (!_frozen)
+            if (_frozen)
             {
-                _restoreScale = Time.timeScale > 0f ? Time.timeScale : 1f;
-                Time.timeScale = 0f;
-                _frozen = true;
-                FreezeCount++;
+                _remaining = HitStopLogic.Merge(_remaining, duration); // B16: simultaneous hits never stack
+                return;
             }
+
+            // DMG-005 (B20): sequential hits in a swarm must not chain into stutter.
+            // Real time, because scaled time is stopped during a freeze.
+            if (!HitStopLogic.CanFreeze(_lastFreezeTime, Time.unscaledTime, hitStop.Refractory))
+            {
+                return;
+            }
+
+            _remaining = duration;
+            _restoreScale = Time.timeScale > 0f ? Time.timeScale : 1f;
+            Time.timeScale = 0f;
+            _frozen = true;
+            _lastFreezeTime = Time.unscaledTime;
+            FreezeCount++;
         }
 
         private void Update()

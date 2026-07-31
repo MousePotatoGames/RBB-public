@@ -37,7 +37,7 @@ MonoBehaviour:
   fallDamageMultiplier: 1.5
   fallSpeedThreshold: 6
   hitCooldown: 0.25
-  knockbackForce: 9
+  knockbackForce: 20
   knockbackResistance: 0
   knockbackRecovery: 0.35
   corpseTime: 1
@@ -45,3 +45,4 @@ MonoBehaviour:
   hitStopReferenceDamage: 15
   hitStopMinDuration: 0.05
   hitStopMaxDuration: 0.09
+  hitStopRefractory: 0.5
