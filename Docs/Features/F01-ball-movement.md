@@ -65,7 +65,7 @@ Game.Gameplay
 | Item | Value | Status |
 |---|---:|---|
 | 기본 최대속도 | 12 m/s | TEMPORARY (MOVE-005 범위 10~13) |
-| 0→최대속도 도달 시간 | 1.2 s | TEMPORARY (범위 1.0~1.5) |
+| 0→최대속도 도달 시간 | **1.0 s** (초기 1.2에서 조정) | **CONFIRMED** — 2026-08-01 플레이테스트 EXP-001. "조금 답답해" → 1.0s 적용 후 "이제 딱 좋아". 가속도 10 → 12 m/s² ([기록](../Playtests/2026-08-01_F01-F04.md)) |
 | 경사 보정력 계수 | 1.0 | TEMPORARY |
 | 접지 판정 거리 (SphereCast) | 0.6 m | TEMPORARY |
 | Rigidbody mass / linearDamping / angularDamping | 1 / 0.05 / 1.5 | TEMPORARY |
