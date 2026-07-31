@@ -26,6 +26,7 @@ namespace Game.Gameplay
         private DashState _dashState = DashState.Initial;
         private bool _jumpQueued;
         private bool _dashQueued;
+        private float _dashActiveRemaining;
 
         public BallMovementConfig Config
         {
@@ -44,6 +45,12 @@ namespace Game.Gameplay
 
         /// <summary>Remaining dash cooldown in seconds (0 = ready). For HUD and tests.</summary>
         public float DashCooldownRemaining => _dashState.CooldownRemaining;
+
+        /// <summary>
+        /// True during the short window after a dash. SPD-001 treats this as the
+        /// Rumble tier regardless of actual speed.
+        /// </summary>
+        public bool IsDashActive => _dashActiveRemaining > 0f;
 
         public void SetMoveInput(Vector2 input) => _moveInput = input;
 
@@ -123,6 +130,10 @@ namespace Game.Gameplay
         private void ApplyDash(Float3 planarDirection, float deltaTime)
         {
             _dashState = DashLogic.Step(_dashState, deltaTime);
+            if (_dashActiveRemaining > 0f)
+            {
+                _dashActiveRemaining -= deltaTime;
+            }
 
             bool requested = _dashQueued;
             _dashQueued = false;
@@ -140,6 +151,7 @@ namespace Game.Gameplay
 
             _body.AddForce(ToVector3(change), ForceMode.VelocityChange);
             _dashState = DashLogic.StartCooldown(_dashState, dashConfig);
+            _dashActiveRemaining = config.dashActiveWindow; // SPD-001: rumble tier window
         }
 
         private void UpdateGroundState()

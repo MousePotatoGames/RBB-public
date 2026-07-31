@@ -46,6 +46,17 @@ namespace Game.Gameplay
         [Tooltip("Seconds before the dash is available again (range 1.5~2.2)")]
         [Min(0f)] public float dashCooldown = 1.8f;
 
+        [Header("SPD-001 — speed tiers (TEMPORARY)")]
+        [Range(0f, 1f)] public float midTierThreshold = 0.35f;
+        [Range(0f, 1f)] public float highTierThreshold = 0.70f;
+        [Range(0f, 1f)] public float rumbleTierThreshold = 0.95f;
+
+        [Tooltip("How far below a boundary the ball must fall before dropping a tier")]
+        [Range(0f, 0.2f)] public float tierHysteresis = 0.05f;
+
+        [Tooltip("Seconds after a dash during which the ball counts as dashing (SPD-001 exception)")]
+        [Min(0f)] public float dashActiveWindow = 0.35f;
+
         public float Acceleration => maxSpeed / Mathf.Max(0.05f, timeToMaxSpeed);
 
         /// <summary>Launch speed that produces jumpAirTime under the current gravity.</summary>
@@ -56,5 +67,8 @@ namespace Game.Gameplay
         public JumpConfig ToJumpConfig() => new JumpConfig(coyoteTime, jumpBufferTime);
 
         public DashConfig ToDashConfig() => new DashConfig(dashSpeed, dashCooldown);
+
+        public SpeedTierConfig ToSpeedTierConfig() =>
+            new SpeedTierConfig(midTierThreshold, highTierThreshold, rumbleTierThreshold, tierHysteresis);
     }
 }
