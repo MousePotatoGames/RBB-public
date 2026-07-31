@@ -334,7 +334,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 561000783}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.35292676, y: 0, z: 0, w: 0.93565094}
+  m_LocalRotation: {x: 0.29793414, y: 0, z: 0, w: 0.95458645}
   m_LocalPosition: {x: 0, y: 7.272276, z: -8.6681185}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -598,6 +598,7 @@ GameObject:
   - component: {fileID: 718158918}
   - component: {fileID: 718158917}
   - component: {fileID: 718158916}
+  - component: {fileID: 718158919}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -896,6 +897,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.SpeedTierTracker
   config: {fileID: 11400000, guid: 37da3c0985c619c4ea96924bd1a3c932, type: 2}
+--- !u!114 &718158919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718158908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8009d8a4b1171d941a4b49f81d6b464c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.PlayerHealth
+  config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
+  logToConsole: 1
+  debugCurrentHealth: 0
 --- !u!1 &948252611
 GameObject:
   m_ObjectHideFlags: 0
@@ -1208,7 +1224,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1287780054}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.35292676, y: 0, z: 0, w: 0.93565094}
+  m_LocalRotation: {x: 0.2979342, y: 0, z: 0, w: 0.95458645}
   m_LocalPosition: {x: 0, y: 7.272276, z: -8.6681185}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1742,6 +1758,55 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1761796067}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1941314341
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1941314343}
+  - component: {fileID: 1941314342}
+  m_Layer: 0
+  m_Name: DroneSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1941314342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941314341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4303dea6b8ca534090de4ed528567b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.DroneSpawner
+  config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
+  dronePrefab: {fileID: 4010416545512871077, guid: 41fa67d23d4b1c54dad8879179c41ee3, type: 3}
+  player: {fileID: 718158912}
+  playerHealth: {fileID: 718158919}
+  cameraTransform: {fileID: 1287780057}
+--- !u!4 &1941314343
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1941314341}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1754,3 +1819,4 @@ SceneRoots:
   - {fileID: 1493166153}
   - {fileID: 561000788}
   - {fileID: 1159972071}
+  - {fileID: 1941314343}

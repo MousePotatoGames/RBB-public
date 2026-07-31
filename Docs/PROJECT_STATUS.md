@@ -17,6 +17,8 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 | F03 점프·대시·조향 감쇠 | Approved | Done | Verified (automated) | Manual 대기 |
 | F04 속도 4단계 + 최소 피드백 | Approved | Done | Verified (automated) | Manual 대기 |
 
+| F05 드론·스포너·풀링·접촉 피해 | Approved | Done | Verified (automated) | Manual 대기 |
+
 **플레이테스트 1회차 (2026-08-01)**: F01~F04 조작감 확인 완료 — [기록](Playtests/2026-08-01_F01-F04.md). 가속 시간 1.2→1.0s 확정, HYP-001 1차 검증. 대시 체감은 적 구현 후 재평가.
 
 전체 순서는 [Docs/Design/DEVELOPMENT_ORDER.md](Design/DEVELOPMENT_ORDER.md) (F01~F13 = First Playable).
@@ -34,6 +36,11 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 ## Known issues
 
 - 없음. (해결됨: 에디터 백그라운드 시 플레이 모드 프레임 정지 → 2026-08-01 Player Settings의 **Run In Background 활성화**. 기획서 21.4의 포커스 상실 대응과도 부합)
+
+## 작업 순서 주의 (2026-08-01 F05에서 학습)
+
+씬 배선 직후 스크립트를 수정하면 재컴파일 중 인스펙터 참조가 유실될 수 있다.
+**스크립트 수정 → 컴파일 완료 확인 → 씬 배선 → 저장 직후 참조 재확인** 순서를 지킬 것.
 
 ## Environment
 
