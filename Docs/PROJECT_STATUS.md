@@ -19,6 +19,7 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 
 | F05 드론·스포너·풀링·접촉 피해 | Approved | Done | Verified (automated) | Manual 대기 |
 | F06 충돌 전투·넉백·히트스톱 | Approved | Done | Verified (automated) | **1회차 완료** |
+| F07 패배·결과 화면·재시작 | Approved | Done | Verified (automated) | Manual 대기 |
 
 **플레이테스트 1회차 (2026-08-01)**: F01~F04 조작감 확인 완료 — [기록](Playtests/2026-08-01_F01-F04.md). 가속 시간 1.2→1.0s 확정, HYP-001 1차 검증. 대시 체감은 적 구현 후 재평가.
 
@@ -36,8 +37,12 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 
 ## Next up
 
-- `/first-playable:feature F07-lose-restart` — 패배 + 재시작 (LOSE-001). HP 0 → 결과 화면 → 원클릭 재시작, 상태 완전 초기화
-- F07이 들어오면 **세션 완주가 가능해지므로** O6("저속 접촉의 손해가 억울하다")를 다시 판단할 수 있다
+- **사용자 수동 플레이 (F07)** → 이제 세션 완주가 가능하다. 특히 **O6("저속 접촉의 손해가 억울하다") 재판단**과 **HYP-006(권유 없이 Retry를 누르는가)** 첫 관찰 → `/first-playable:playtest`
+- 이후 `/first-playable:feature F08-weapon-attachment` — 무기 부착 시스템 (WPN-001/001a/002/003/005/006). **이 게임의 차별점(HYP-002)이 처음 검증 가능해지는 지점**
+
+## 결정이 필요한 시점
+
+- **한글 UI 폰트** — F07은 결과 화면을 ASCII(`TIME`/`KILLS`)로 우회했다. TMP 기본 폰트에 한글 글리프가 없어 □□로 깨진다. **F13 HUD 전에** 결정할 것: 필요한 글자만 담은 정적 SDF 아틀라스 vs 영문 유지 (WebGL 50MB 목표 — 기획서 15장)
 
 ## Known issues
 
