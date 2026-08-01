@@ -15,6 +15,9 @@ namespace Game.Presentation
         [SerializeField] private PlayerDamageDealer dealer;
         [SerializeField] private DroneConfig config;
 
+        [Tooltip("F07 (B6): 세션이 끝나면 정지 소유권을 넘기고 물러난다")]
+        [SerializeField] private GameSession session;
+
         private float _remaining;
         private bool _frozen;
         private float _restoreScale = 1f;
@@ -32,6 +35,7 @@ namespace Game.Presentation
 
         public PlayerDamageDealer Dealer { get => dealer; set => dealer = value; }
         public DroneConfig Config { get => config; set => config = value; }
+        public GameSession Session { get => session; set => session = value; }
 
         private void Awake()
         {
@@ -47,6 +51,11 @@ namespace Game.Presentation
             {
                 dealer.Hit += OnHit;
             }
+
+            if (session != null)
+            {
+                session.Ended += OnSessionEnded;
+            }
         }
 
         private void OnDisable()
@@ -56,8 +65,25 @@ namespace Game.Presentation
                 dealer.Hit -= OnHit;
             }
 
+            if (session != null)
+            {
+                session.Ended -= OnSessionEnded;
+            }
+
             // B18: never leave the game frozen if this component goes away.
             Release();
+        }
+
+        /// <summary>
+        /// F07 (B6): the session owns Time.timeScale once it has ended. Drop the
+        /// freeze *without* restoring the scale — restoring it here would undo the
+        /// session pause — then stop listening.
+        /// </summary>
+        private void OnSessionEnded(SessionState _)
+        {
+            _frozen = false;
+            _remaining = 0f;
+            enabled = false;
         }
 
         private void OnHit(float damage, Vector3 _)

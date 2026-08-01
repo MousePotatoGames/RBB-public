@@ -1,3 +1,4 @@
+using Game.Gameplay;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,8 +11,19 @@ namespace Game.Presentation
     /// </summary>
     public sealed class CursorLockController : MonoBehaviour
     {
+        [Tooltip("F07 (B7): 세션이 끝난 뒤에는 커서를 다시 잠그지 않는다 — 결과 화면을 클릭해야 한다")]
+        [SerializeField] private GameSession session;
+
+        public GameSession Session { get => session; set => session = value; }
+
         private void Update()
         {
+            // F07 B7: once the session has ended the result screen owns the cursor.
+            if (session != null && !session.IsRunning)
+            {
+                return;
+            }
+
             var keyboard = Keyboard.current;
             var mouse = Mouse.current;
 
