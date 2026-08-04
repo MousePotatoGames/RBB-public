@@ -276,6 +276,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &486829165
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 486829167}
+  - component: {fileID: 486829166}
+  m_Layer: 0
+  m_Name: CapsuleSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &486829166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486829165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e56d4c8f0fcddbf4da499741b5fde02e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.CapsuleSpawner
+  config: {fileID: 11400000, guid: 49e98e2aeae93494ba7ba2e6454be206, type: 2}
+  player: {fileID: 718158922}
+  session: {fileID: 1730558535}
+  pool:
+  - {fileID: 11400000, guid: 39aa24f32ad0695419a636424590a615, type: 2}
+  - {fileID: 11400000, guid: 1af572c4f0071a54389dc07e7bd3151b, type: 2}
+  - {fileID: 11400000, guid: 07db4d74cb48f24429c8a4dba6e2391c, type: 2}
+--- !u!4 &486829167
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486829165}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &528959684
 GameObject:
   m_ObjectHideFlags: 0
@@ -895,6 +946,7 @@ GameObject:
   - component: {fileID: 718158919}
   - component: {fileID: 718158921}
   - component: {fileID: 718158920}
+  - component: {fileID: 718158922}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1238,6 +1290,21 @@ MonoBehaviour:
   config: {fileID: 11400000, guid: 0c4a621755a687347bcf31c5f7ba1920, type: 2}
   movementConfig: {fileID: 11400000, guid: 37da3c0985c619c4ea96924bd1a3c932, type: 2}
   motor: {fileID: 718158914}
+  weapons: {fileID: 718158922}
+  logToConsole: 1
+--- !u!114 &718158922
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718158908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e2c730663d91fd43bfc4a680a59e98a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.WeaponSlots
+  config: {fileID: 11400000, guid: 49e98e2aeae93494ba7ba2e6454be206, type: 2}
   logToConsole: 1
 --- !u!1 &948252611
 GameObject:
@@ -2716,3 +2783,4 @@ SceneRoots:
   - {fileID: 1730558536}
   - {fileID: 156598711}
   - {fileID: 1437745810}
+  - {fileID: 486829167}

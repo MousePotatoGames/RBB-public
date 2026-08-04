@@ -20,6 +20,7 @@ Nothing yet. `Assets/_Game/Scenes/Gameplay/FirstPlayable.unity`에 바닥과 플
 | F05 드론·스포너·풀링·접촉 피해 | Approved | Done | Verified (automated) | Manual 대기 |
 | F06 충돌 전투·넉백·히트스톱 | Approved | Done | Verified (automated) | **1회차 완료** |
 | F07 패배·결과 화면·재시작 | Approved | Done | Verified (automated) | Manual 대기 |
+| F08 무기 부착 (자유 부착) | Approved (개정) | Done | Verified (automated) | Manual 대기 |
 
 **플레이테스트 1회차 (2026-08-01)**: F01~F04 조작감 확인 완료 — [기록](Playtests/2026-08-01_F01-F04.md). 가속 시간 1.2→1.0s 확정, HYP-001 1차 검증. 대시 체감은 적 구현 후 재평가.
 

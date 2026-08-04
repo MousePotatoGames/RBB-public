@@ -17,6 +17,9 @@ namespace Game.Gameplay
         [SerializeField] private BallMovementConfig movementConfig;
         [SerializeField] private BallMotor motor;
 
+        [Tooltip("F09 (SPK-001): 접촉 무기의 추가 피해를 이 충돌에 더한다")]
+        [SerializeField] private WeaponSlots weapons;
+
         [Tooltip("F06 임시: 타격 결과를 콘솔로 확인한다 (F13에서 HUD로 대체)")]
         [SerializeField] private bool logToConsole;
 
@@ -34,6 +37,7 @@ namespace Game.Gameplay
         public DroneConfig Config { get => config; set => config = value; }
         public BallMovementConfig MovementConfig { get => movementConfig; set => movementConfig = value; }
         public BallMotor Motor { get => motor; set => motor = value; }
+        public WeaponSlots Weapons { get => weapons; set => weapons = value; }
 
         private void Awake()
         {
@@ -41,6 +45,11 @@ namespace Game.Gameplay
             if (motor == null)
             {
                 motor = GetComponent<BallMotor>();
+            }
+
+            if (weapons == null)
+            {
+                weapons = GetComponent<WeaponSlots>();
             }
 
             if (movementConfig == null && motor != null)
@@ -80,15 +89,33 @@ namespace Game.Gameplay
             Vector3 planar = new Vector3(velocity.x, 0f, velocity.z);
             Vector3 toEnemy = enemy.transform.position - transform.position;
 
+            bool dashing = motor != null && motor.IsDashActive;
+
             float damage = DamageLogic.CollisionDamage(
                 planar.magnitude,
                 movementConfig.maxSpeed,
                 ToFloat3(planar),
                 ToFloat3(toEnemy),
-                motor != null && motor.IsDashActive,
+                dashing,
                 velocity.y,
                 passiveMultiplier: 1f, // F12 will feed this
                 config.ToDamageConfig());
+
+            // SPK-001 (B7): the weapon bonus rides on this collision rather than
+            // being its own hit, so it shares the DMG-002 cooldown for free.
+            float knockbackMultiplier = 1f;
+            if (weapons != null && weapons.AttachedCount > 0)
+            {
+                float frontality = DamageLogic.Frontality(
+                    ToFloat3(planar), ToFloat3(toEnemy), config.ToDamageConfig());
+
+                damage += weapons.BonusDamageAgainst(
+                    toEnemy, planar.magnitude, movementConfig.maxSpeed, frontality, dashing,
+                    config.minSpeedMultiplier);
+
+                knockbackMultiplier = weapons.KnockbackMultiplierAgainst(
+                    toEnemy, dashing, config.minSpeedMultiplier);
+            }
 
             if (!enemy.TryTakeDamage(damage, now))
             {
@@ -107,7 +134,8 @@ namespace Game.Gameplay
                     config.droneMaxHealth,
                     config.knockbackForce,
                     config.knockbackResistance);
-                drone.TakeKnockback(new Vector3(impulse.X, impulse.Y, impulse.Z));
+                // SPK-001 (B6): a dashing spike hit throws the enemy harder.
+                drone.TakeKnockback(new Vector3(impulse.X, impulse.Y, impulse.Z) * knockbackMultiplier);
             }
 
             Hit?.Invoke(damage, enemy.transform.position);
