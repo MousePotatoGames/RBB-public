@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70b208fe2d9e71f4888b24e0bafef8b7, type: 3}
+  m_Name: Weapon_Tesla
+  m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.WeaponDefinition
+  kind: 2
+  displayName: Tesla Ring
+  mount: 0
+  attack: 2
+  arcHalfAngleDegrees: 60
+  bonusDamage: 8
+  dashDamageMultiplier: 1.5
+  dashKnockbackMultiplier: 1.4
+  shape: 3
+  scale: 0.28
