@@ -20,9 +20,11 @@
 | A1 | 플레이 모드 중 스크립트 수정 → **에디터 교착** | 2회 | **치명** | ✅ 훅으로 차단 가능 |
 | A2 | Run In Background 꺼짐 → 플레이 모드 프레임 정지 | 1회 | 높음 (**잘못된 검증 결론 유발**) | ✅ bootstrap 프리플라이트 |
 | A3 | 도메인 리로드 중 MCP 응답 공백 | 수십 회 | 중 (시간 낭비) | ✅ 재시도 규약 |
+| A4 | **입력 장치 0개** — Active Input Handling 변경 후 에디터 미재시작 | 1회 | 높음 (**게임이 조작 불가**) | ✅ bootstrap 프리플라이트 |
 | B1 | **계측 조건이 실제 플레이와 달라 결론이 정반대** | 1회 | **치명** | ✅ verify 규칙 |
 | B2 | **공허하게 통과하는 단언** (발동 안 해도 통과) | 2건 | 높음 | ✅ unity-testing 규칙 |
 | B3 | 문자열은 맞고 **렌더링이 틀린** 경우 | 1건 | 중 | ✅ verify 체크리스트 |
+| B4 | **보간이 위치 쓰기를 되돌려** 테스트가 간헐 실패 | 2회 (제품 1, 테스트 1) | 높음 | ✅ unity-testing 규칙 |
 | C1 | 재컴파일로 **씬 인스펙터 참조 유실** | 1회 | 높음 | ✅ feature 순서 규약 |
 | C2 | **진단용 임시 수치를 되돌리지 못함** | 1회 | 중 | ✅ verify 종료 게이트 |
 | D1 | 테스트 결과 폴링으로 왕복 낭비 | 상시 | 낮음 | ✅ 규약 정리 |
@@ -134,6 +136,61 @@ F03 검증에서 플레이 모드 상태를 샘플링했는데 `Time.frameCount`
 
 ---
 
+### A4. 입력 장치 0개 — Active Input Handling 변경 후 미재시작 (높음, 1회)
+
+**상황**
+F09 검증을 마친 직후 사용자가 "WASD가 안 먹는다"고 보고했다. 처음엔 내가 검증하느라
+플레이 모드를 들락거린 탓이라고 답했지만, 사용자가 **혼자 테스트해도 동일**하다고 했다.
+
+**증상 — 전부 정상인데 조작만 안 된다**
+
+```
+InputSystem.actions = InputSystem_Actions   ✅ 프로젝트 전역 에셋 할당됨
+Player 맵 enabled=True                       ✅
+Player/Move enabled=True  bindings=12        ✅ WASD·화살표 전부 에셋에 존재
+PlayerInputReader enabled=True               ✅
+콘솔 에러·경고                                 ✅ 0건
+
+devices=0  disconnectedDevices=0             ❌ 키보드도 마우스도 없음
+Keyboard.current = NULL                      ❌
+Player/Move controls=0                       ❌ 바인딩 12개가 붙을 컨트롤이 없음
+```
+
+**원인**
+Project Settings의 **Active Input Handling**을 `Input System Package (New)`로 바꾸면
+네이티브 입력 백엔드 교체를 위해 **에디터 재시작이 필요**하다. 재시작 전까지는
+액션 에셋은 정상 로드되고 맵도 `enabled=True`가 되지만, 장치가 하나도 등록되지 않아
+모든 액션이 항상 0을 반환한다.
+
+**해결**
+에디터 재시작. 직후 `devices=2 (Keyboard, Mouse)`, `Move controls=8`로 정상화.
+
+**내가 낭비한 것 — 잘못된 가설을 먼저 확신했다**
+`editorInputBehaviorInPlayMode=PointersAndKeyboardsRespectGameViewFocus`와
+`Application.isFocused=False`를 보고 "Game 뷰 포커스 문제"라고 진단했다.
+사용자가 Game 뷰를 클릭하고도 안 된다고 해서야 틀린 걸 알았다.
+
+**놓친 판별 근거**: 포커스 문제라면 장치는 목록에 **있고** `enabled=False`로만 뜬다.
+`devices=0`은 라우팅 문제가 아니라 **백엔드 부재**를 뜻한다. 이 구분을 처음부터
+했으면 한 번에 맞혔다.
+
+**더 나쁜 점**: 내 계측은 전부 Unity 창이 포커스를 잃은 상태에서 한 것이라,
+포커스 가설을 검증할 수 없는 조건이었다. B1과 같은 실수를 다른 형태로 반복했다.
+
+**플러그인 예방책 (P8)**
+`bootstrap` 프리플라이트에 한 줄 추가하면 끝난다:
+
+```csharp
+// Active Input Handling이 New인데 devices=0이면 재시작이 필요한 상태다
+if (InputSystem.devices.Count == 0)
+    Debug.LogError("[preflight] 입력 장치 0개 — Active Input Handling 변경 후 에디터 재시작이 필요합니다");
+```
+
+A2(Run In Background)와 같은 자리에서 같은 방식으로 잡을 수 있는 문제다.
+**둘 다 "설정 하나 때문에 런타임이 조용히 거짓이 되는" 부류**다.
+
+---
+
 ## B. 검증 방법론 — 가장 값비싼 실수들
 
 ### B1. 계측 조건이 실제 플레이와 달라 결론이 정반대 (치명, 1회)
@@ -211,6 +268,46 @@ Assert.IsTrue(stats.text.Contains("생존"));   // 통과
 > UI 텍스트를 추가한 기능은 **문자열 단언만으로 `VERIFIED` 불가**. 콘솔에 폰트/글리프 경고가 없는지 확인하고, 캡처로 육안 확인할 것.
 
 `references/unity-testing.md`에도: *"`Contains("...")`는 문자열을 검증하지 렌더링을 검증하지 않는다."*
+
+---
+
+### B4. 보간이 위치 쓰기를 되돌려 테스트가 간헐 실패 (높음, 2회)
+
+**같은 원인이 두 번 나왔다.** 한 번은 제품 코드(F09, B19 드론 부양), 한 번은 테스트 리그(F10).
+
+**F10에서의 증상**
+`Wpn009_ProjectileDoesNotHitPlayer`가 실패하는데, **완전히 동일한 셋업**의
+`Can001_CannonFiresAtEnemy_WithoutPlayerCollision`은 통과했다. 같은 캐논, 같은 위치의 적, 스텝 수만 다름.
+
+**내가 처음 세운 가설 (틀림)**
+"동일 셋업인데 결과가 다르니 테스트 간 상태 누수다." → 격리 실행해도 똑같이 실패했다.
+
+**진짜 원인**
+테스트 헬퍼가 적을 원하는 위치에 놓으려고 `drone.transform.position = ...`을 썼다.
+`ScrapDrone`은 **보간이 켜진 키네마틱 Rigidbody**다. 보간된 바디는 버퍼된 포즈로 Transform을
+재구성하면서 그 쓰기를 조용히 되돌린다. 그래서 적이 **스포너의 링 위 무작위 각도**에 남았고,
+25° 발사각 안에 우연히 들어오면 통과, 아니면 실패하는 **플레이키 테스트**가 됐다.
+
+**해결**
+`ScrapDrone.SnapToChaseHeight`가 이미 쓰는 방식 그대로 — 보간을 끄고 Rigidbody에 쓴 뒤 되돌린다.
+
+**추가 조치: 공허한 통과 차단**
+"발사하지 않는다"를 단언하는 테스트들이 더 위험했다. 적이 드리프트해서 사거리·각도 밖으로
+나가면 **테스트는 통과하지만 아무것도 검증하지 않는다**(B2와 같은 부류).
+그래서 음성 단언 테스트마다 `AssertEnemyStillAt(...)` 사전 조건을 붙였다.
+
+**플레이키는 한 번 통과로 끝나지 않는다**
+고친 뒤 PlayMode를 **2회 연속** 돌려 75/75를 확인했다. 간헐 실패를 1회 통과로 닫으면
+운이 좋았던 것과 구분되지 않는다.
+
+**플러그인 예방책 (P9)**
+`references/unity-testing.md`에:
+
+> 보간이 켜진 Rigidbody의 위치를 `transform.position`으로 옮기지 말 것 — 조용히 되돌아간다.
+> 보간을 끄고 `Rigidbody.position`에 쓴 뒤 복구할 것.
+> 그리고 **테스트 리그가 놓은 위치는 단언으로 확인**할 것. 위치가 어긋난 음성 단언은 공허하게 통과한다.
+>
+> 간헐 실패를 고친 뒤에는 **최소 2회 연속 통과**를 확인할 것.
 
 ---
 
