@@ -58,7 +58,9 @@ namespace Game.Core
                     return dir;
                 }
 
-                dir = PushAway(dir, taken[crowded], minSeparationDegrees);
+                // Rotate away from the crowding weapon: start there and travel toward
+                // `dir` by exactly the minimum gap (F10 shares this with aim assist).
+                dir = Rotation.Exactly(taken[crowded], dir, minSeparationDegrees);
             }
 
             return dir;
@@ -81,39 +83,6 @@ namespace Game.Core
             }
 
             return worst;
-        }
-
-        /// <summary>
-        /// Rotates <paramref name="dir"/> directly away from <paramref name="from"/>
-        /// along the great circle through both, until they are exactly
-        /// <paramref name="degrees"/> apart.
-        /// </summary>
-        private static Float3 PushAway(Float3 dir, Float3 from, float degrees)
-        {
-            // Tangent pointing away from `from`, on the sphere at `dir`.
-            Float3 away = (dir - from * Float3.Dot(dir, from)).Normalized();
-            if (away.Equals(Float3.Zero))
-            {
-                // Exactly coincident (or antipodal): no unique "away", so pick any
-                // perpendicular direction and rotate from `from` instead.
-                away = Perpendicular(from);
-                dir = from;
-            }
-
-            double radians = degrees * Math.PI / 180.0;
-            return (from * (float)Math.Cos(radians) + away * (float)Math.Sin(radians)).Normalized();
-        }
-
-        /// <summary>Any unit vector perpendicular to <paramref name="v"/>.</summary>
-        private static Float3 Perpendicular(Float3 v)
-        {
-            // Cross with whichever axis v is least aligned to, so the result is stable.
-            Float3 axis = Math.Abs(v.Y) < 0.9f ? Float3.Up : new Float3(1f, 0f, 0f);
-            var cross = new Float3(
-                v.Y * axis.Z - v.Z * axis.Y,
-                v.Z * axis.X - v.X * axis.Z,
-                v.X * axis.Y - v.Y * axis.X);
-            return cross.Normalized();
         }
     }
 }

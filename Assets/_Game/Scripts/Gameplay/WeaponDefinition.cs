@@ -33,10 +33,47 @@ namespace Game.Gameplay
         [Min(1f)] public float dashDamageMultiplier = 1.5f;
         [Min(1f)] public float dashKnockbackMultiplier = 1.4f;
 
+        [Header("Projectile attack (attack = Projectile only) — WPN-009 / CAN-001")]
+        [Tooltip("F10은 직선만 구현한다. 유도는 F12, 즉시(레이저)는 F11")]
+        public ProjectileTravel travel = ProjectileTravel.Straight;
+
+        [Tooltip("CAN-001 발사 쿨다운(초)")]
+        [Min(0.05f)] public float fireInterval = 0.7f;
+
+        [Tooltip("WPN-009: 1회 발사 수. 이 값과 확산만 올리면 산탄이 된다 — 코드 변경 불필요")]
+        [Range(1, 16)] public int shotsPerBurst = 1;
+
+        [Tooltip("WPN-009: 부채꼴 전체 폭(도). 양 끝 탄이 ±절반에 놓인다. 발사 수 1이면 무시된다")]
+        [Range(0f, 180f)] public float spreadDegrees;
+
+        [Min(0.1f)] public float projectileSpeed = 18f;
+
+        [Tooltip("이 거리만큼 날아가면 소멸한다. 적 스폰 링보다 짧게 두어 화면 밖 저격을 막는다")]
+        [Min(0.5f)] public float projectileRange = 14f;
+
+        [Tooltip("첫 적 이후 추가로 관통하는 수")]
+        [Min(0)] public int pierce;
+
+        [Min(0f)] public float projectileDamage = 6f;
+
+        [Tooltip("SphereCast 판정 반경 — 콜라이더 대신 이걸로 맞힌다 (터널링 방지)")]
+        [Min(0.01f)] public float projectileRadius = 0.15f;
+
         [Header("Visual (greybox — P07 replaces this)")]
         public PrimitiveType shape = PrimitiveType.Capsule;
 
         [Min(0.01f)] public float scale = 0.28f;
+
+        public ProjectileConfig ToProjectileConfig() =>
+            new ProjectileConfig(
+                travel,
+                fireInterval,
+                shotsPerBurst,
+                spreadDegrees,
+                projectileSpeed,
+                projectileRange,
+                pierce,
+                projectileDamage);
 
         public ContactWeaponConfig ToContactConfig(float minSpeedMultiplier) =>
             new ContactWeaponConfig(

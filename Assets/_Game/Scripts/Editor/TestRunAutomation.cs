@@ -27,17 +27,22 @@ namespace Game.Editor
             return UnityEngine.ScriptableObject.CreateInstance<TestRunnerApi>();
         }
 
-        public static void RunEditMode(string assemblyName)
+        public static void RunEditMode(string assemblyName, string testName = null)
         {
-            Run(TestMode.EditMode, assemblyName);
+            Run(TestMode.EditMode, assemblyName, testName);
         }
 
-        public static void RunPlayMode(string assemblyName)
+        public static void RunPlayMode(string assemblyName, string testName = null)
         {
-            Run(TestMode.PlayMode, assemblyName);
+            Run(TestMode.PlayMode, assemblyName, testName);
         }
 
-        private static void Run(TestMode mode, string assemblyName)
+        /// <summary>
+        /// <paramref name="testName"/> is a regex over full test names. Running one
+        /// test alone is how an inter-test state leak gets separated from a real
+        /// defect — a suite-only failure means the rig, not the code.
+        /// </summary>
+        private static void Run(TestMode mode, string assemblyName, string testName)
         {
             if (File.Exists(ResultPath))
             {
@@ -48,7 +53,8 @@ namespace Game.Editor
             var filter = new Filter
             {
                 testMode = mode,
-                assemblyNames = string.IsNullOrEmpty(assemblyName) ? null : new[] { assemblyName }
+                assemblyNames = string.IsNullOrEmpty(assemblyName) ? null : new[] { assemblyName },
+                testNames = string.IsNullOrEmpty(testName) ? null : new[] { testName }
             };
             api.Execute(new ExecutionSettings(filter));
         }

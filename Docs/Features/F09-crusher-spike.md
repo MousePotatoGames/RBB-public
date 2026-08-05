@@ -2,7 +2,9 @@
 
 ## Status
 
-Implementing — 구현 완료 (EditMode 116/116, PlayMode 61/61), `/first-playable:verify F09-crusher-spike` 대기. 스펙 승인: 2026-08-05
+Verified (자동 검증 범위) — 2026-08-05. EditMode 116/116, PlayMode 61/61, 런타임 실측 완료.
+Done conditions 1·2·3·5 `VERIFIED`, 4·6은 Manual play checks로 남아 있습니다.
+→ [검증 보고서](../Reports/2026-08-05_F09-crusher-spike_VERIFICATION.md) · 스펙 승인 2026-08-05
 
 ## Purpose
 

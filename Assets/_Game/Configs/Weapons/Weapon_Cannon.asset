@@ -20,5 +20,14 @@ MonoBehaviour:
   bonusDamage: 8
   dashDamageMultiplier: 1.5
   dashKnockbackMultiplier: 1.4
+  travel: 0
+  fireInterval: 0.7
+  shotsPerBurst: 1
+  spreadDegrees: 0
+  projectileSpeed: 18
+  projectileRange: 14
+  pierce: 0
+  projectileDamage: 6
+  projectileRadius: 0.15
   shape: 2
   scale: 0.28

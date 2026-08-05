@@ -31,6 +31,12 @@ namespace Game.Gameplay
         public int TotalCreated { get; private set; }
         public float Elapsed => _elapsed;
 
+        /// <summary>
+        /// Live drones, including corpses awaiting despawn. Callers must skip
+        /// <see cref="ScrapDrone.IsDead"/>.
+        /// </summary>
+        public IReadOnlyList<ScrapDrone> Active => _active;
+
         public DroneConfig Config { get => config; set => config = value; }
         public ScrapDrone DronePrefab { get => dronePrefab; set => dronePrefab = value; }
         public Transform Player { get => player; set => player = value; }
