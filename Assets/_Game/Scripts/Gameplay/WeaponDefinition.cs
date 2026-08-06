@@ -59,6 +59,19 @@ namespace Game.Gameplay
         [Tooltip("SphereCast 판정 반경 — 콜라이더 대신 이걸로 맞힌다 (터널링 방지)")]
         [Min(0.01f)] public float projectileRadius = 0.15f;
 
+        [Header("Zap attack (attack = Zap only) — TES-001")]
+        [Tooltip("TES-001 방전 주기(초). 무조건 맞으므로 캐논보다 느리게 둔다")]
+        [Min(0.05f)] public float zapInterval = 0.9f;
+
+        [Tooltip("링 부착점 기준 사거리. 짧아야 무리 속으로 파고들 이유가 생긴다 — 캐논과의 대비가 정체성")]
+        [Min(0.5f)] public float zapRange = 5f;
+
+        [Tooltip("거리 0에서의 피해")]
+        [Min(0f)] public float zapMaxDamage = 12f;
+
+        [Tooltip("사거리 끝에서의 피해. 최대치와 차이가 클수록 '붙어야 한다'가 강해진다")]
+        [Min(0f)] public float zapMinDamage = 4f;
+
         [Header("Visual (greybox — P07 replaces this)")]
         public PrimitiveType shape = PrimitiveType.Capsule;
 
@@ -74,6 +87,9 @@ namespace Game.Gameplay
                 projectileRange,
                 pierce,
                 projectileDamage);
+
+        public ZapConfig ToZapConfig() =>
+            new ZapConfig(zapInterval, zapRange, zapMaxDamage, zapMinDamage);
 
         public ContactWeaponConfig ToContactConfig(float minSpeedMultiplier) =>
             new ContactWeaponConfig(

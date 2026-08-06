@@ -21,6 +21,7 @@
 | A2 | Run In Background 꺼짐 → 플레이 모드 프레임 정지 | 1회 | 높음 (**잘못된 검증 결론 유발**) | ✅ bootstrap 프리플라이트 |
 | A3 | 도메인 리로드 중 MCP 응답 공백 | 수십 회 | 중 (시간 낭비) | ✅ 재시도 규약 |
 | A4 | **입력 장치 0개** — Active Input Handling 변경 후 에디터 미재시작 | 1회 | 높음 (**게임이 조작 불가**) | ✅ bootstrap 프리플라이트 |
+| A5 | `isCompiling=False`를 **"컴파일 완료"로 오독** (실제로는 컴파일 실패) | 1회 | 중 | ✅ 재시도 규약 보강 |
 | B1 | **계측 조건이 실제 플레이와 달라 결론이 정반대** | 1회 | **치명** | ✅ verify 규칙 |
 | B2 | **공허하게 통과하는 단언** (발동 안 해도 통과) | 2건 | 높음 | ✅ unity-testing 규칙 |
 | B3 | 문자열은 맞고 **렌더링이 틀린** 경우 | 1건 | 중 | ✅ verify 체크리스트 |
@@ -188,6 +189,58 @@ if (InputSystem.devices.Count == 0)
 
 A2(Run In Background)와 같은 자리에서 같은 방식으로 잡을 수 있는 문제다.
 **둘 다 "설정 하나 때문에 런타임이 조용히 거짓이 되는" 부류**다.
+
+---
+
+### A5. `isCompiling=False`를 컴파일 완료로 오독 (중, 1회)
+
+**상황**
+F11에서 새 스크립트를 여러 개 만든 뒤 `isCompiling`을 확인했더니 `False`였다.
+"컴파일 끝났구나" 하고 씬 배선을 시도했는데 **새 타입을 하나도 못 찾았다**:
+
+```
+CS0103: The name 'F11TeslaSetup' does not exist in the current context
+CS0246: The type or namespace name 'ZapWeaponController' could not be found
+```
+
+**원인**
+`isCompiling=False`는 세 가지 상태를 전부 같은 값으로 보고한다:
+
+| 상태 | isCompiling |
+|---|---|
+| 컴파일이 **성공적으로 끝났다** | False |
+| 컴파일이 **아직 시작도 안 했다** (포커스 없어 자동 새로고침 미발생) | False |
+| 컴파일이 **실패했다** | **False** |
+
+이번 건은 **세 번째**였다. `F11TeslaSetup.cs`에 `using Game.Core;`가 빠져
+`WeaponAttack`을 못 찾았고, `Game.Editor` 어셈블리 빌드가 통째로 실패했다.
+
+**내가 낭비한 것 — 순서를 틀렸다**
+`AssetDatabase.Refresh`를 부르고, 타입 존재를 확인하고, `.meta` 파일 생성 시각까지 뒤졌다.
+**콘솔 에러를 마지막에 봤다.** 처음에 봤으면 한 줄로 끝났다:
+
+```
+Assets\_Game\Scripts\Editor\F11TeslaSetup.cs(38,28):
+error CS0103: The name 'WeaponAttack' does not exist in the current context
+```
+
+**올바른 순서**
+
+1. **콘솔 에러 먼저** — 컴파일 실패는 여기에만 나온다. `isCompiling`에는 안 나온다
+2. 에러가 없는데도 타입이 없으면 → `AssetDatabase.Refresh` (임포트 미발생)
+3. 판정은 플래그가 아니라 **새 타입의 존재 여부**로
+
+```csharp
+// 어셈블리 이름까지 맞아야 해서 오탐이 나기 쉽다 — 컴파일 시점 참조가 더 확실하다
+sb.Append(typeof(Game.Core.ZapLogic).FullName);  // 없으면 이 스크립트가 컴파일 실패
+```
+
+**플러그인 예방책 (P10)**
+`references/unity-mcp.md`의 재시도 규약에:
+
+> `isCompiling=False`는 완료를 뜻하지 않는다 — **미시작·성공·실패가 전부 False**다.
+> 스크립트를 쓴 뒤 새 타입이 안 보이면 **가장 먼저 콘솔 에러를 읽을 것.**
+> 컴파일 실패는 플래그가 아니라 콘솔에만 나타난다.
 
 ---
 
