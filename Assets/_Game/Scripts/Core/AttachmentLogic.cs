@@ -2,12 +2,19 @@ using System;
 
 namespace Game.Core
 {
-    /// <summary>The three First Playable weapons (WPN-005). F09~F11 branch on this.</summary>
+    /// <summary>
+    /// WPN-005 draw identity — the same kind appears at most once per run.
+    ///
+    /// Five kinds against three slots is what finally makes the draw vary: with
+    /// three of three, only the order changed and every run handed out the same set.
+    /// </summary>
     public enum WeaponKind
     {
         Spike = 0,
         Cannon = 1,
         Tesla = 2,
+        Axe = 3,
+        Pet = 4,
     }
 
     /// <summary>
