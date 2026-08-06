@@ -303,6 +303,80 @@ namespace Game.Tests.PlayMode
                 "WPN-007 B5: it settles at the standoff distance, not inside the ball");
         }
 
+        [UnityTest]
+        public IEnumerator Wpn007_FollowWeapon_AppearsBesideThePlayer_NotAtWorldOrigin()
+        {
+            BuildRig();
+
+            // Every other test attaches with the ball at the origin, which is exactly
+            // why none of them caught this: the pet was built at world origin and the
+            // player was standing on it. In play the capsule is picked up out in the
+            // arena and the pet streaked in from the middle of the map.
+            _ball.transform.position = new Vector3(12f, 0f, -9f);
+            GameObject pet = Attach(Pet(standoff: 1.8f, followSpeed: 6f));
+
+            yield return null; // no physics steps — this is the spawn pose, not settling
+
+            Assert.AreEqual(1.8f, Vector3.Distance(pet.transform.position, _ball.transform.position), 0.05f,
+                "WPN-007 B5: a follow weapon starts at its standoff distance from the player");
+        }
+
+        // ---- jitter: reported in play, so it gets a regression test ---------------
+
+        [UnityTest]
+        public IEnumerator Wpn007_SettledFollowWeapon_DoesNotSpin()
+        {
+            BuildRig();
+            GameObject pet = Attach(Pet(standoff: 1.8f, followSpeed: 6f));
+
+            yield return Steps(200); // let it settle next to a stationary player
+
+            Quaternion before = pet.transform.rotation;
+            float worst = 0f;
+
+            for (int i = 0; i < 30; i++)
+            {
+                yield return new WaitForFixedUpdate();
+                worst = Mathf.Max(worst, Quaternion.Angle(before, pet.transform.rotation));
+            }
+
+            Assert.Less(worst, 5f,
+                $"a settled pet must hold its heading — turning to face floating-point noise is what reads as trembling (worst {worst:0.0}°)");
+        }
+
+        [UnityTest]
+        public IEnumerator Wpn007_MountedWeapon_RendersBetweenPhysicsSteps()
+        {
+            BuildRig();
+            GameObject axe = Attach(Axe(radius: 2.2f, angularSpeed: 180f));
+            var mounted = axe.GetComponent<MountedWeapon>();
+
+            yield return Steps(5);
+
+            // Sample rendered positions across several frames: with no interpolation
+            // they would sit on top of each other whenever two frames share a physics
+            // step, which is the stutter against the interpolated ball.
+            var rendered = new List<Vector3>();
+            for (int i = 0; i < 12; i++)
+            {
+                yield return null;
+                rendered.Add(axe.transform.position);
+            }
+
+            int distinct = 0;
+            for (int i = 1; i < rendered.Count; i++)
+            {
+                if ((rendered[i] - rendered[i - 1]).sqrMagnitude > 1e-10f)
+                {
+                    distinct++;
+                }
+            }
+
+            Assert.Greater(distinct, 0, "the weapon must actually move between rendered frames");
+            Assert.Greater((mounted.LogicPosition - Vector3.zero).magnitude, 1f,
+                "and the authoritative pose stays available for FixedUpdate judgement");
+        }
+
         // ---- B9/B10: sweep contact — the new damage path -------------------------
 
         [UnityTest]
