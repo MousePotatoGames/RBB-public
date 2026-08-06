@@ -20,6 +20,9 @@ namespace Game.Gameplay
         [Tooltip("F09 (SPK-001): 접촉 무기의 추가 피해를 이 충돌에 더한다")]
         [SerializeField] private WeaponSlots weapons;
 
+        [Tooltip("PAS-002 (B22): 충돌 피해 배율의 출처. 없으면 배율 1")]
+        [SerializeField] private PlayerProgress progress;
+
         [Tooltip("F06 임시: 타격 결과를 콘솔로 확인한다 (F13에서 HUD로 대체)")]
         [SerializeField] private bool logToConsole;
 
@@ -38,6 +41,7 @@ namespace Game.Gameplay
         public BallMovementConfig MovementConfig { get => movementConfig; set => movementConfig = value; }
         public BallMotor Motor { get => motor; set => motor = value; }
         public WeaponSlots Weapons { get => weapons; set => weapons = value; }
+        public PlayerProgress Progress { get => progress; set => progress = value; }
 
         private void Awake()
         {
@@ -50,6 +54,11 @@ namespace Game.Gameplay
             if (weapons == null)
             {
                 weapons = GetComponent<WeaponSlots>();
+            }
+
+            if (progress == null)
+            {
+                progress = GetComponent<PlayerProgress>();
             }
 
             if (movementConfig == null && motor != null)
@@ -98,7 +107,10 @@ namespace Game.Gameplay
                 ToFloat3(toEnemy),
                 dashing,
                 velocity.y,
-                passiveMultiplier: 1f, // F12 will feed this
+                // PAS-002 (B22). F06 left this parameter here with a comment naming the
+                // feature that would fill it — a hole in the boundary rather than a
+                // structure built in advance, and it cost one line to use.
+                passiveMultiplier: progress != null ? progress.Effects.DamageMultiplier : 1f,
                 config.ToDamageConfig());
 
             // SPK-001 (B7): the weapon bonus rides on this collision rather than

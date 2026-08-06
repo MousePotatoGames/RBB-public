@@ -3,6 +3,48 @@ using NUnit.Framework;
 
 namespace Game.Tests.EditMode
 {
+    /// <summary>PAS-001 healing (F13 stage 2).</summary>
+    public sealed class HealLogicTests
+    {
+        private static readonly HealthConfig Config = new HealthConfig(100f, 0.45f);
+
+        [Test]
+        public void Pas001_Heal_RestoresHealth()
+        {
+            var hurt = new HealthState(40f, 0f);
+
+            Assert.AreEqual(60f, HealthLogic.Heal(hurt, 20f, 100f).Current, 1e-3f);
+        }
+
+        // The effective max includes the passive bonus, so healing must be told the
+        // number rather than reading the config's.
+        [Test]
+        public void Pas001_Heal_ClampsToTheEffectiveMax()
+        {
+            var nearlyFull = new HealthState(95f, 0f);
+
+            Assert.AreEqual(120f, HealthLogic.Heal(nearlyFull, 999f, 120f).Current, 1e-3f);
+        }
+
+        [Test]
+        public void Pas001_Heal_DoesNotRevive()
+        {
+            var dead = new HealthState(0f, 0f);
+
+            Assert.AreEqual(0f, HealthLogic.Heal(dead, 50f, 100f).Current);
+            Assert.IsFalse(HealthLogic.Heal(dead, 50f, 100f).IsAlive);
+        }
+
+        // Healing is not a hit — it must not hand out fresh invulnerability.
+        [Test]
+        public void Pas001_Heal_LeavesInvulnerabilityAlone()
+        {
+            var state = new HealthState(40f, 0.3f);
+
+            Assert.AreEqual(0.3f, HealthLogic.Heal(state, 10f, 100f).InvulnerabilityRemaining, 1e-4f);
+        }
+    }
+
     /// <summary>
     /// EditMode coverage for F05 player health (HP-001 / HP-002).
     /// </summary>
