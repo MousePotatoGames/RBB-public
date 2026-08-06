@@ -17,7 +17,13 @@ namespace Game.Gameplay
     {
         private const int MaxWeapons = 3; // WPN-003
 
+        /// <summary>Sized from the enum so adding a kind cannot silently overflow it.</summary>
+        private static readonly int KindCount = System.Enum.GetValues(typeof(WeaponKind)).Length;
+
         [SerializeField] private WeaponConfig config;
+
+        [Tooltip("F12: 궤도·추종 무기의 부모. 공의 자식이 아니어야 공 회전을 안 따른다 (WPN-007)")]
+        [SerializeField] private WeaponContainer container;
 
         [Tooltip("F09 임시: 부착을 콘솔로 확인한다 (F13에서 HUD로 대체)")]
         [SerializeField] private bool logToConsole = true;
@@ -25,12 +31,13 @@ namespace Game.Gameplay
         private readonly Float3[] _directions = new Float3[MaxWeapons];
         private readonly GameObject[] _attached = new GameObject[MaxWeapons];
         private readonly WeaponDefinition[] _definitions = new WeaponDefinition[MaxWeapons];
-        private readonly bool[] _kindTaken = new bool[3];
+        private readonly bool[] _kindTaken = new bool[KindCount];
 
         /// <summary>WeaponAcquired(definition, localDirection).</summary>
         public event Action<WeaponDefinition, Vector3> Acquired;
 
         public WeaponConfig Config { get => config; set => config = value; }
+        public WeaponContainer Container { get => container; set => container = value; }
 
         /// <summary>How many weapons are attached (WPN-003 caps this at 3).</summary>
         public int AttachedCount { get; private set; }
@@ -105,9 +112,12 @@ namespace Game.Gameplay
             for (int i = 0; i < AttachedCount; i++)
             {
                 WeaponDefinition def = _definitions[i];
-                if (def == null || def.attack != WeaponAttack.Contact)
+                if (def == null || def.attack != WeaponAttack.Contact || def.mount != WeaponMount.Surface)
                 {
-                    continue; // B9
+                    // B9, and WPN-008a: orbit/follow contact weapons are their own
+                    // damage source (SweepContactController), not a modifier on this
+                    // collision. Counting them here would double-dip.
+                    continue;
                 }
 
                 total += ContactWeaponLogic.BonusDamage(
@@ -128,9 +138,9 @@ namespace Game.Gameplay
             for (int i = 0; i < AttachedCount; i++)
             {
                 WeaponDefinition def = _definitions[i];
-                if (def == null || def.attack != WeaponAttack.Contact)
+                if (def == null || def.attack != WeaponAttack.Contact || def.mount != WeaponMount.Surface)
                 {
-                    continue;
+                    continue; // WPN-008a — same reason as BonusDamageAgainst
                 }
 
                 float m = ContactWeaponLogic.KnockbackMultiplier(
@@ -144,7 +154,11 @@ namespace Game.Gameplay
             return best;
         }
 
-        /// <summary>WPN-002 (B7/B8): greybox primitive aligned to the surface normal, parented to the ball.</summary>
+        /// <summary>
+        /// Builds the weapon object. The mount decides where it lives (WPN-007):
+        /// surface weapons are children of the ball so they roll with it, while orbit
+        /// and follow weapons go under the stationary container and move themselves.
+        /// </summary>
         private GameObject BuildWeapon(WeaponDefinition definition, Float3 direction)
         {
             var normal = new Vector3(direction.X, direction.Y, direction.Z);
@@ -160,12 +174,28 @@ namespace Game.Gameplay
                 DestroyImmediate(collider);
             }
 
-            float radius = config != null ? config.attachRadius : 0.55f;
-
-            go.transform.SetParent(transform, false);
-            go.transform.localPosition = normal * radius;
-            go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, normal);
             go.transform.localScale = Vector3.one * definition.scale;
+
+            if (definition.mount == WeaponMount.Surface)
+            {
+                // B8 / WPN-002: rides the ball, aligned to the surface normal.
+                float radius = config != null ? config.attachRadius : 0.55f;
+                go.transform.SetParent(transform, false);
+                go.transform.localPosition = normal * radius;
+                go.transform.localRotation = Quaternion.FromToRotation(Vector3.up, normal);
+                return go;
+            }
+
+            // B7: not a child of the ball — that is what keeps the ball's rotation out
+            // of it. The container is stationary; MountedWeapon drives the position.
+            go.transform.SetParent(container != null ? container.transform : null, true);
+
+            var mounted = go.AddComponent<MountedWeapon>();
+
+            // Seed the orbit angle from the contact direction, so where the capsule was
+            // touched still decides where the weapon starts (WPN-001a's variety).
+            float startAngle = Mathf.Atan2(normal.z, normal.x) * Mathf.Rad2Deg;
+            mounted.Initialise(definition, transform, startAngle);
 
             return go;
         }

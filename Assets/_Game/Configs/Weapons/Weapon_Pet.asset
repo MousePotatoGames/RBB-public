@@ -10,28 +10,36 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70b208fe2d9e71f4888b24e0bafef8b7, type: 3}
-  m_Name: Weapon_Tesla
+  m_Name: Weapon_Pet
   m_EditorClassIdentifier: Game.Gameplay::Game.Gameplay.WeaponDefinition
-  kind: 2
-  displayName: Tesla Ring
-  mount: 0
-  attack: 2
+  kind: 4
+  displayName: Follow Pet
+  mount: 2
+  attack: 1
   arcHalfAngleDegrees: 60
   bonusDamage: 8
   dashDamageMultiplier: 1.5
   dashKnockbackMultiplier: 1.4
   travel: 0
-  fireInterval: 0.7
+  fireInterval: 1
   shotsPerBurst: 1
   spreadDegrees: 0
-  projectileSpeed: 18
-  projectileRange: 14
+  projectileSpeed: 14
+  projectileRange: 10
   pierce: 0
-  projectileDamage: 6
+  projectileDamage: 5
   projectileRadius: 0.15
+  orbitRadius: 2.2
+  orbitAngularSpeed: 180
+  orbitHeight: 0.3
+  followStandoff: 1.8
+  followSpeed: 6
+  sweepRadius: 0.7
+  sweepInterval: 0.25
+  sweepDamage: 9
   zapInterval: 0.9
   zapRange: 5
   zapMaxDamage: 12
   zapMinDamage: 4
-  shape: 3
-  scale: 0.28
+  shape: 0
+  scale: 0.32

@@ -1,21 +1,13 @@
 namespace Game.Core
 {
     /// <summary>
-    /// WPN-005: which weapon each capsule carries. Every kind appears exactly
-    /// once per run, in an order that changes run to run — that variety is the
-    /// point (HYP-006 재도전 유도), so it is a rule, not a detail.
+    /// WPN-005: which weapons a run hands out. Slot-count many, drawn without
+    /// repeats from everything the game owns, in an order that changes run to run —
+    /// that variety is the point (HYP-006 재도전 유도), so it is a rule, not a detail.
     /// Seeded so tests are deterministic.
     /// </summary>
     public static class WeaponDrawLogic
     {
-        /// <summary>Every kind exactly once, order derived from the seed.</summary>
-        public static WeaponKind[] Draw(int seed)
-        {
-            var order = new[] { WeaponKind.Spike, WeaponKind.Cannon, WeaponKind.Tesla };
-            Shuffle(order, seed);
-            return order;
-        }
-
         /// <summary>
         /// WPN-005 (2026-08-05 개정): draws <paramref name="pick"/> indices out of
         /// <paramref name="poolSize"/> without repeats. Once the pool is larger than

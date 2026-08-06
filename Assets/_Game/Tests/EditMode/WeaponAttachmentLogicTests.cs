@@ -176,47 +176,6 @@ namespace Game.Tests.EditMode
             Assert.That(result.Magnitude(), Is.EqualTo(1f).Within(1e-4f));
         }
 
-        // B11
-        [Test]
-        public void Wpn005_Draw_HasNoDuplicates()
-        {
-            CollectionAssert.AllItemsAreUnique(WeaponDrawLogic.Draw(1),
-                "WPN-005: weapons must not repeat within a run");
-        }
-
-        // B11
-        [Test]
-        public void Wpn005_Draw_ContainsEveryKind()
-        {
-            WeaponKind[] draw = WeaponDrawLogic.Draw(7);
-
-            Assert.AreEqual(3, draw.Length);
-            CollectionAssert.Contains(draw, WeaponKind.Spike);
-            CollectionAssert.Contains(draw, WeaponKind.Cannon);
-            CollectionAssert.Contains(draw, WeaponKind.Tesla);
-        }
-
-        // B11
-        [Test]
-        public void Wpn005_Draw_OrderVariesWithSeed()
-        {
-            var seen = new HashSet<string>();
-            for (int seed = 0; seed < 40; seed++)
-            {
-                seen.Add(string.Join(",", WeaponDrawLogic.Draw(seed)));
-            }
-
-            Assert.Greater(seen.Count, 1,
-                "WPN-005: the pickup order must differ between runs — it is a source of replay variety");
-        }
-
-        // B11
-        [Test]
-        public void Wpn005_Draw_IsDeterministicForASeed()
-        {
-            CollectionAssert.AreEqual(WeaponDrawLogic.Draw(123), WeaponDrawLogic.Draw(123));
-        }
-
         // WPN-005 (2026-08-05 개정) — pool larger than slots
         [Test]
         public void Wpn005_DrawIndices_PicksSlotCountWithoutRepeats()
