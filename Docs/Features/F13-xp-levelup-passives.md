@@ -2,9 +2,14 @@
 
 ## Status
 
-**Implementing — 1·2단계 구현 완료.** EditMode 218/218, PlayMode 133/133, 새 콘솔 에러 0건.
-`/first-playable:verify F13-xp-levelup-passives` 대기.
+**Verified (automated)** — 2026-08-07.
+EditMode 218/218, PlayMode 133/133, 새 콘솔 에러·경고 0건. 런타임에서 루프 전체 관측.
+검증 보고서: [2026-08-07_F13-xp-levelup-passives_VERIFICATION.md](../Reports/2026-08-07_F13-xp-levelup-passives_VERIFICATION.md)
 스펙 승인: 2026-08-07 (카드 텍스트 ASCII 결정 포함)
+
+**계기가 건드리지 못한 것은 입력 경로 하나입니다** — 키보드 1/2/3과 마우스 클릭.
+검증은 `Choose(index)`를 직접 호출했습니다. 그리고 *90초에 레벨업이 몇 번 오는 게 맞는가*는
+처음부터 사람이 답할 질문입니다 (XP-002의 미측정 항목).
 
 > **구현 중 고친 결함 2건** (둘 다 테스트가 잡았습니다):
 > 1. **물리 콜백 안의 `DestroyImmediate`** — 오브 풀이 기존 풀 3개의 `CreatePrimitive` +
