@@ -27,22 +27,27 @@ namespace Game.Editor
             return UnityEngine.ScriptableObject.CreateInstance<TestRunnerApi>();
         }
 
-        public static void RunEditMode(string assemblyName, string testName = null)
+        public static void RunEditMode(string assemblyName, string testName = null, string groupName = null)
         {
-            Run(TestMode.EditMode, assemblyName, testName);
+            Run(TestMode.EditMode, assemblyName, testName, groupName);
         }
 
-        public static void RunPlayMode(string assemblyName, string testName = null)
+        public static void RunPlayMode(string assemblyName, string testName = null, string groupName = null)
         {
-            Run(TestMode.PlayMode, assemblyName, testName);
+            Run(TestMode.PlayMode, assemblyName, testName, groupName);
         }
 
         /// <summary>
-        /// <paramref name="testName"/> is a regex over full test names. Running one
-        /// test alone is how an inter-test state leak gets separated from a real
+        /// Narrowing a run is how an inter-test state leak gets separated from a real
         /// defect — a suite-only failure means the rig, not the code.
+        ///
+        /// The two filters are not interchangeable:
+        /// <paramref name="testName"/> is matched <b>exactly</b> against full test
+        /// names, so a pattern silently selects nothing, while
+        /// <paramref name="groupName"/> is the <b>regex</b> one — use it to run a
+        /// whole fixture (<c>^Game\.Tests\.PlayMode\.FooTests$</c>).
         /// </summary>
-        private static void Run(TestMode mode, string assemblyName, string testName)
+        private static void Run(TestMode mode, string assemblyName, string testName, string groupName)
         {
             if (File.Exists(ResultPath))
             {
@@ -54,7 +59,8 @@ namespace Game.Editor
             {
                 testMode = mode,
                 assemblyNames = string.IsNullOrEmpty(assemblyName) ? null : new[] { assemblyName },
-                testNames = string.IsNullOrEmpty(testName) ? null : new[] { testName }
+                testNames = string.IsNullOrEmpty(testName) ? null : new[] { testName },
+                groupNames = string.IsNullOrEmpty(groupName) ? null : new[] { groupName }
             };
             api.Execute(new ExecutionSettings(filter));
         }

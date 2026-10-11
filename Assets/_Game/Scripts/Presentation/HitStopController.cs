@@ -18,6 +18,9 @@ namespace Game.Presentation
         [Tooltip("F07 (B6): 세션이 끝나면 정지 소유권을 넘기고 물러난다")]
         [SerializeField] private GameSession session;
 
+        [Tooltip("F13 (LVL-001 B10): 레벨업 카드가 뜨면 정지 소유권을 넘긴다")]
+        [SerializeField] private LevelUpDirector levelUp;
+
         private float _remaining;
         private bool _frozen;
         private float _restoreScale = 1f;
@@ -36,6 +39,7 @@ namespace Game.Presentation
         public PlayerDamageDealer Dealer { get => dealer; set => dealer = value; }
         public DroneConfig Config { get => config; set => config = value; }
         public GameSession Session { get => session; set => session = value; }
+        public LevelUpDirector LevelUp { get => levelUp; set => levelUp = value; }
 
         private void Awake()
         {
@@ -56,6 +60,11 @@ namespace Game.Presentation
             {
                 session.Ended += OnSessionEnded;
             }
+
+            if (levelUp != null)
+            {
+                levelUp.Opened += OnLevelUpOpened;
+            }
         }
 
         private void OnDisable()
@@ -68,6 +77,11 @@ namespace Game.Presentation
             if (session != null)
             {
                 session.Ended -= OnSessionEnded;
+            }
+
+            if (levelUp != null)
+            {
+                levelUp.Opened -= OnLevelUpOpened;
             }
 
             // B18: never leave the game frozen if this component goes away.
@@ -84,6 +98,21 @@ namespace Game.Presentation
             _frozen = false;
             _remaining = 0f;
             enabled = false;
+        }
+
+        /// <summary>
+        /// LVL-001 (B10): the level-up screen owns Time.timeScale while it is up.
+        /// Drop the freeze *without* restoring the scale — same handoff as
+        /// <see cref="OnSessionEnded"/>. Restoring it here would let a 0.05초
+        /// hit stop expire and quietly un-pause the card screen behind it.
+        ///
+        /// Unlike the session end this does not disable the component: the game
+        /// resumes after the choice and hits must freeze again.
+        /// </summary>
+        private void OnLevelUpOpened()
+        {
+            _frozen = false;
+            _remaining = 0f;
         }
 
         private void OnHit(float damage, Vector3 _)

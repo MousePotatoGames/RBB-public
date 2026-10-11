@@ -16,6 +16,9 @@ namespace Game.Gameplay
         [SerializeField] private BallMovementConfig config;
         [SerializeField] private Transform cameraTransform;
 
+        [Tooltip("PAS-002 (B22): 최대 속도 배율의 출처. 없으면 배율 1")]
+        [SerializeField] private PlayerProgress progress;
+
         private Rigidbody _body;
         private SphereCollider _sphere;
         private Vector2 _moveInput;
@@ -27,6 +30,8 @@ namespace Game.Gameplay
         private bool _jumpQueued;
         private bool _dashQueued;
         private float _dashActiveRemaining;
+
+        public PlayerProgress Progress { get => progress; set => progress = value; }
 
         public BallMovementConfig Config
         {
@@ -80,7 +85,13 @@ namespace Game.Gameplay
             float dt = Time.fixedDeltaTime;
             UpdateGroundState();
 
-            MoveConfig cfg = config.ToMoveConfig();
+            // PAS-002 (B22): the passive raises the ceiling here, not in the asset.
+            // SpeedTierTracker deliberately keeps normalising against the base value,
+            // so a faster ball reaches 럼블 sooner instead of feeling identical
+            // (설계 판단 3).
+            MoveConfig cfg = config.ToMoveConfig(
+                progress != null ? progress.Effects.SpeedMultiplier : 1f);
+
             Float3 direction = BallMovementLogic.CameraRelativeDirection(
                 ToFloat3(cameraTransform.forward),
                 ToFloat3(cameraTransform.right),

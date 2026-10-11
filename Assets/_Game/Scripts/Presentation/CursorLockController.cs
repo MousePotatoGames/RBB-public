@@ -14,12 +14,23 @@ namespace Game.Presentation
         [Tooltip("F07 (B7): 세션이 끝난 뒤에는 커서를 다시 잠그지 않는다 — 결과 화면을 클릭해야 한다")]
         [SerializeField] private GameSession session;
 
+        [Tooltip("F13 (LVL-001): 레벨업 카드가 떠 있는 동안에는 커서를 잠그지 않는다")]
+        [SerializeField] private LevelUpDirector levelUp;
+
         public GameSession Session { get => session; set => session = value; }
+        public LevelUpDirector LevelUp { get => levelUp; set => levelUp = value; }
 
         private void Update()
         {
             // F07 B7: once the session has ended the result screen owns the cursor.
             if (session != null && !session.IsRunning)
+            {
+                return;
+            }
+
+            // LVL-001: the card screen needs the pointer. Re-locking on the very
+            // click that picks a card would take the mouse away mid-choice.
+            if (levelUp != null && levelUp.IsOpen)
             {
                 return;
             }

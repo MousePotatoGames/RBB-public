@@ -62,7 +62,19 @@ namespace Game.Gameplay
         /// <summary>Launch speed that produces jumpAirTime under the current gravity.</summary>
         public float JumpSpeed => JumpLogic.JumpSpeedForAirTime(jumpAirTime, Mathf.Abs(Physics.gravity.y));
 
-        public MoveConfig ToMoveConfig() => new MoveConfig(maxSpeed, Acceleration, slopeAssist, airControl, steeringAtMaxSpeed);
+        /// <summary>
+        /// PAS-002 (B22): <paramref name="speedMultiplier"/> scales the ceiling and the
+        /// acceleration together, so a faster ball still reaches its top speed in the
+        /// same time — a passive that raised the ceiling alone would make the ball
+        /// feel sluggish, which is the opposite of 고밀도 코어's intent.
+        /// The asset itself is never modified (설계 판단 1).
+        /// </summary>
+        public MoveConfig ToMoveConfig(float speedMultiplier = 1f) => new MoveConfig(
+            maxSpeed * speedMultiplier,
+            Acceleration * speedMultiplier,
+            slopeAssist,
+            airControl,
+            steeringAtMaxSpeed);
 
         public JumpConfig ToJumpConfig() => new JumpConfig(coyoteTime, jumpBufferTime);
 

@@ -82,5 +82,22 @@ namespace Game.Core
             var newState = new HealthState(next, config.InvulnerabilityDuration);
             return new DamageResult(newState, true, justDied);
         }
+
+        /// <summary>
+        /// PAS-001: restores health up to <paramref name="maxHealth"/>, which is the
+        /// <i>effective</i> max including passives — not the config value.
+        /// Never revives: a card cannot be taken after the run has ended.
+        /// The invulnerability timer is untouched; healing is not a hit.
+        /// </summary>
+        public static HealthState Heal(HealthState state, float amount, float maxHealth)
+        {
+            if (!state.IsAlive || amount <= 0f)
+            {
+                return state;
+            }
+
+            float next = state.Current + amount;
+            return new HealthState(next > maxHealth ? maxHealth : next, state.InvulnerabilityRemaining);
+        }
     }
 }
