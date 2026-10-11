@@ -140,7 +140,8 @@ ARMOR 선택  — 최대 HP 100 → 120, 현재 HP 60 → 80  (증가분만큼 �
 | B8 한 번에 두 레벨 | `VERIFIED` (PlayMode) | 런타임에서는 한 칸씩만 관측 |
 | B9 최고 레벨에서 정지 | `VERIFIED` | 종료 후 247 XP → Lv5 (곡선 상한) |
 | B10 게임 시간 완전 정지 | `VERIFIED` | 카드 표시 중 `timeScale=0` |
-| B11 키보드 1/2/3 + 마우스 | `UNVERIFIED` | **`Choose(index)`를 직접 호출**했습니다 → Manual |
+| B11 키보드 1/2/3 | `VERIFIED` (2026-10-12, 시뮬레이션 이벤트) | `QueueStateEvent`로 Digit1/2/3 → 해당 카드 단계 +1 · 다음 카드 열림 · 마지막에 재개. [추가 검증](#추가-검증--b11-키보드-경로-2026-10-12) |
+| B11 마우스 클릭 | `UNVERIFIED` | 여전히 Manual |
 | B12 선택 시 재개 | `VERIFIED` | 선택 직후 `timeScale=1` |
 | B13 레벨당 이벤트 1회 | `VERIFIED` | `OpenCount`가 레벨당 1씩 증가 |
 | B14 정지 중 unscaled | `VERIFIED` (PlayMode) | 히트스톱 회귀 테스트가 실시간으로 대기 |
@@ -190,7 +191,7 @@ ARMOR 선택  — 최대 HP 100 → 120, 현재 HP 60 → 80  (증가분만큼 �
 ## Manual Verification Required
 
 **입력 경로 (B11) — 계기가 건드리지 못한 유일한 코드 경로**
-- **키보드 1 / 2 / 3으로 카드가 선택되는가**
+- ~~키보드 1 / 2 / 3으로 카드가 선택되는가~~ → 2026-10-12 자동 검증 ([추가 검증](#추가-검증--b11-키보드-경로-2026-10-12)). 실제 키보드로 한 번 눌러보는 것만 남음
 - **마우스 클릭으로 카드가 선택되는가** (커서 양보가 실제로 동작하는가)
 
 **Feature Spec의 Manual play checks**
@@ -236,3 +237,47 @@ ARMOR 선택  — 최대 HP 100 → 120, 현재 HP 60 → 80  (증가분만큼 �
 
 **계기가 건드리지 못한 것은 입력 경로 하나입니다** — 키보드 1/2/3과 마우스 클릭.
 그리고 *레벨업이 90초에 몇 번 오는 게 맞는가*는 처음부터 사람이 답할 질문이었습니다.
+
+---
+
+## 추가 검증 — B11 키보드 경로 (2026-10-12)
+
+`LevelUpScreen.Update`의 `Keyboard.current.digitNKey.wasPressedThisFrame` → `Choose(index)` 경로.
+지난 검증이 건너뛴 앞단입니다. Unity CLI(`unity command`)로 라이브 에디터를 조작했습니다.
+
+### 측정 조건
+
+| 항목 | 이번 측정 | 실제 플레이 |
+|---|---|---|
+| 레벨업 | `PlayerProgress.AddExperience(5)` × 13 → Lv1→4, 카드 3장 대기 | 처치로 획득 |
+| 키 입력 | `InputSystem.QueueStateEvent(Keyboard.current, KeyboardState(Key.DigitN))` → 0.5초 뒤 전체 해제 | 물리 키보드 |
+| 판정 | **결과로**: 해당 순번 카드의 패시브 단계, 다음 카드 열림, `timeScale` | — |
+
+`QueueStateEvent`는 Input System이 공식 테스트에서 쓰는 방식으로, 하드웨어 이벤트와 같은 이벤트
+큐·업데이트를 탑니다. 키 이벤트가 `Dynamic` 업데이트에서 "막 눌림"으로 잡히는 것을 매번 로그로 확인했습니다.
+
+### 결과
+
+| 입력 | 막 눌림 감지 | 결과 |
+|---|---|---|
+| Digit4 (대조) | 1회 | **변화 없음** — 카드 그대로 (감지는 됐으므로 "입력이 안 들어감"이 아니라 무시한 것) |
+| Digit1 | 1회 | ArmorPlating 0→1, 다음 카드 열림 (B16), 대기 3→2 |
+| Digit2 | 1회 | DenseCore 0→1, 다음 카드 열림, 대기 2→1 |
+| Digit3 | 1회 | MagnetField 0→1, 카드 닫힘, `timeScale` 0→1 (B12) |
+
+콘솔 에러 0건. 카드 화면은 CLI의 `capture_game_view`로 찍었습니다 —
+오버레이 UI까지 담깁니다: `Docs/Media/2026-10-12_F13-B11-card-screen.png`
+
+### 같은 날 겪은 함정 — `simulate_key`로는 이 경로를 못 연다
+
+처음에는 CLI의 `simulate_key`(`press`, `down`/`up` 모두)로 시도했는데 **카드가 한 번도 선택되지 않았습니다.**
+결론을 내기 전에 원인을 갈랐습니다:
+
+- 키는 `Keyboard.current`에 정확히 들어감 — 누르는 동안 `digit1Key.isPressed=True` (키보드는 1개)
+- 그런데 99번의 업데이트 동안 **`wasPressedThisFrame`이 한 번도 True가 아니었고**, 놓을 때의
+  `wasReleasedThisFrame`은 정상 감지
+
+즉 `simulate_key`(com.unity.pipeline 0.8.0-exp.1)의 key-down은 "눌린 상태"는 만들지만
+"막 눌림" 엣지를 만들지 못합니다. 같은 코드가 `QueueStateEvent`로는 매번 동작했으므로 게임 결함이 아닌
+**도구 한계**로 판정했습니다. 계기만 보고 "B11 고장"이라 적었다면 F02·F06 때와 같은 실수였을 것입니다.
+
